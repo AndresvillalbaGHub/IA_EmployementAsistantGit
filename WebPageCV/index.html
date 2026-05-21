@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andrés Villalba | Especialista en Automatización / Automation Specialist</title>
+    
+    <!-- ======================================================================= -->
+    <!-- CONFIGURACIÓN DE IMÁGENES DE PORTADA (BENTO GRID)                       -->
+    <!-- Reemplaza las URLs entre las comillas simples ('') con tus imágenes.    -->
+    <!-- ======================================================================= -->
+    <style>
+        :root {
+            /* 1. SCADA Multinivel (Grande Izquierda) */
+            --img-scada: url('./assets/images/PortadaScada.jpg');
+            
+            /* 2. Edge AI (Vertical Medio) */
+            --img-ai: url('./assets/images/PortadaVision.jpg');
+            
+            /* 3. PID Control (Cuadrado Arriba Derecha) */
+            --img-pid: url('./assets/images/PortadaPID.jpg');
+            
+            /* 4. Robótica EMG (Cuadrado Abajo Derecha) */
+            --img-emg: url('./assets/images/PortadaBioMed.jpg');
+            
+            /* 5. Simulación ABB (Cuadrado Arriba Izquierda) */
+            --img-abb: url('./assets/images/PortadaABB.jpg');
+            
+            /* 6. Cobot Jaka (Cuadrado Abajo Izquierda) */
+            --img-jaka: url('./assets/images/PortadaJAKA.jpg');
+            
+            /* 7. Drenaje Minería (Vertical Medio) */
+            --img-mining: url('./assets/images/PortadaMina.jpg');
+            
+            /* 8. Python Data Scraper (Grande Derecha) */
+            --img-python: url('./assets/images/PortadaAsistente.jpg');
+        }
+    </style>
+    <!-- ======================================================================= -->
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Dependencias de THREE.js para la simulación 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            light: '#38bdf8',
+                            DEFAULT: '#0284c7',
+                            dark: '#0369a1',
+                        },
+                        accent: {
+                            DEFAULT: '#059669',
+                            light: '#34d399',
+                        }
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: opacity, transform;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .engineering-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(2, 132, 199, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(2, 132, 199, 0.05) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+        }
+
+        /* Bento Grid */
+        .bento-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bento-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+        }
+
+        /* View Transitions para la SPA */
+        .view-hidden {
+            display: none !important;
+        }
+        .view-visible {
+            display: block !important;
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden selection:bg-brand-DEFAULT selection:text-white relative">
+
+    <!-- Fondos Globales -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-light/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-accent-light/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Navegación Global -->
+    <nav class="fixed w-full z-40 top-0 transition-all duration-300 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="#" onclick="goHome()" class="text-2xl font-display font-bold tracking-tighter text-white flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div class="p-1.5 bg-gradient-to-br from-brand-DEFAULT to-brand-light rounded-lg">
+                        <i data-lucide="cpu" class="w-6 h-6 text-white"></i>
+                    </div>
+                    AV.
+                </a>
+                
+                <div class="flex items-center gap-4">
+                    <button class="langToggle flex items-center bg-slate-800/80 rounded-full p-1 border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors shadow-sm" title="Cambiar idioma">
+                        <span class="btn-es px-3 py-1 text-xs font-bold bg-brand-DEFAULT shadow-sm rounded-full text-white transition-all">ES</span>
+                        <span class="btn-en px-3 py-1 text-xs font-semibold text-slate-400 rounded-full transition-all">EN</span>
+                    </button>
+                    <!-- Botón de retorno -->
+                    <button id="backButtonNav" onclick="goHome()" class="hidden items-center justify-center px-4 py-2 text-sm font-bold rounded-full bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                        <span class="lang-es">Volver</span><span class="lang-en hidden">Back</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- VISTA 1: INICIO (RESUMEN + MOSAICO)        -->
+    <!-- ========================================== -->
+    <main id="home-view" class="view-visible">
+        
+        <!-- Sección Resume -->
+        <section id="resumen" class="relative pt-32 pb-16 overflow-hidden">
+            <div class="absolute inset-0 engineering-grid pointer-events-none"></div>
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full fade-in-section">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <div class="lg:col-span-7">
+                        <div class="inline-flex items-center px-4 py-1.5 rounded-full border border-brand-200/50 bg-white/60 backdrop-blur-sm text-sm font-semibold text-brand-DEFAULT mb-6 shadow-sm">
+                            <span class="w-2.5 h-2.5 rounded-full bg-accent mr-2 animate-pulse"></span>
+                            <span class="lang-es">Ingeniero Especialista | Industria 4.0</span>
+                            <span class="lang-en hidden">Specialist Engineer | Industry 4.0</span>
+                        </div>
+                        <h1 class="font-display text-5xl md:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.05]">
+                            Andrés Mauricio <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-DEFAULT via-brand-light to-accent">Villalba Torres</span>
+                        </h1>
+                        <p class="text-xl md:text-2xl font-medium text-slate-700 mb-6">
+                            <span class="lang-es">Diseño arquitecturas de control robustas, robótica aplicada y soluciones HMI/SCADA.</span>
+                            <span class="lang-en hidden">I design robust control architectures, applied robotics, and HMI/SCADA solutions.</span>
+                        </p>
+                        
+                        <div class="text-base text-slate-600 mb-10 leading-relaxed font-light space-y-4 max-w-2xl backdrop-blur-sm bg-white/30 rounded-2xl p-4 border border-white/50 shadow-sm">
+                            <p>
+                                <span class="lang-es">Ingeniero Electrónico y Especialista en Automatización con enfoque en excelencia operativa (Promedio Posgrado: 4.6/5.0). Mi valor radica en conectar el mundo físico (sensores, robótica, PLC) con el mundo digital (visión artificial, dashboards, protocolos deterministas).</span>
+                                <span class="lang-en hidden">Electronic Engineer and Automation Specialist focusing on operational excellence (Postgrad GPA: 4.6/5.0). My value lies in connecting the physical world (sensors, robotics, PLCs) with the digital world (computer vision, dashboards, deterministic protocols).</span>
+                            </p>
+                            <div class="flex flex-wrap gap-2 pt-2">
+                                <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-bold border border-slate-200">Rockwell / ControlLogix</span>
+                                <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-bold border border-slate-200">ABB & Jaka Cobots</span>
+                                <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-bold border border-slate-200">Python / C++</span>
+                                <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-bold border border-slate-200">Ethernet/IP & HART</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="#proyectos" class="group inline-flex items-center justify-center px-8 py-3.5 text-base font-bold rounded-xl bg-slate-900 text-white hover:bg-brand-DEFAULT transition-all shadow-xl hover:-translate-y-1">
+                                <span class="lang-es">Ver Proyectos</span>
+                                <span class="lang-en hidden">View Projects</span> 
+                                <i data-lucide="layout-grid" class="ml-2 w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            <a href="mailto:andresmvillalba@gmail.com" class="inline-flex items-center justify-center px-8 py-3.5 text-base font-bold rounded-xl border-2 border-slate-200 bg-white/50 backdrop-blur-md hover:border-slate-300 hover:bg-white transition-all text-slate-700">
+                                <span class="lang-es">Contactar</span>
+                                <span class="lang-en hidden">Contact</span> 
+                                <i data-lucide="mail" class="ml-2 w-5 h-5"></i>
+                            </a>
+                            <a href="https://orcid.org/0009-0002-7830-5747" target="_blank" class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-100 text-slate-600 hover:bg-accent hover:text-white transition-all" title="ORCID Profile">
+                                <i data-lucide="book" class="w-5 h-5"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 relative hidden lg:block perspective-1000">
+                        <div class="relative z-10 bg-slate-900 border border-slate-700 p-6 rounded-3xl shadow-2xl transform rotate-y-[-5deg] rotate-x-[5deg] hover:rotate-0 transition-transform duration-500">
+                            <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-4">
+                                <div class="flex gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-accent"></div>
+                                </div>
+                                <span class="text-xs font-mono text-slate-400">root@av-system:~</span>
+                            </div>
+                            <div class="font-mono text-sm text-slate-300 space-y-3">
+                                <p class="text-brand-light">$ <span class="text-slate-300">./deploy_skills.sh</span></p>
+                                <p class="opacity-70">> <span class="lang-es">Cargando módulos de Automatización... [OK]</span><span class="lang-en hidden">Loading Automation modules... [OK]</span></p>
+                                <p class="opacity-70">> <span class="lang-es">Inicializando cinemática inversa Cobot... [OK]</span><span class="lang-en hidden">Initializing Cobot inverse kinematics... [OK]</span></p>
+                                <p class="text-accent font-bold">> <span class="lang-es">Sincronización de sistema lista.</span><span class="lang-en hidden">System synchronization ready.</span></p>
+                                <p class="animate-pulse mt-4 text-brand-light">█</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Proyectos: BENTO BOX -->
+        <section id="proyectos" class="py-16 relative z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 fade-in-section">
+                    <div class="max-w-2xl">
+                        <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-2 tracking-tight">
+                            <span class="lang-es">Casos de Estudio.</span>
+                            <span class="lang-en hidden">Case Studies.</span>
+                        </h2>
+                        <p class="text-slate-600">
+                            <span class="lang-es">Expediente Técnico de Proyectos - Ingeniería y Automatización.</span>
+                            <span class="lang-en hidden">Technical Project Dossier - Engineering and Automation.</span>
+                        </p>
+                    </div>
+                    
+                    <div class="mt-6 md:mt-0 flex flex-wrap gap-2" id="filter-buttons">
+                        <button class="filter-btn active px-5 py-2 rounded-full bg-slate-900 text-white text-sm font-bold transition-all shadow-md" data-filter="all">
+                            <span class="lang-es">Todos</span><span class="lang-en hidden">All</span>
+                        </button>
+                        <button class="filter-btn px-5 py-2 rounded-full bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 text-sm font-bold transition-all shadow-sm" data-filter="scada">SCADA & PLC</button>
+                        <button class="filter-btn px-5 py-2 rounded-full bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 text-sm font-bold transition-all shadow-sm" data-filter="ai">Hardware & AI</button>
+                        <button class="filter-btn px-5 py-2 rounded-full bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 text-sm font-bold transition-all shadow-sm" data-filter="control">Robótica</button>
+                        <button class="filter-btn px-5 py-2 rounded-full bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 text-sm font-bold transition-all shadow-sm" data-filter="software">Software & Data</button>
+                    </div>
+                </div>
+
+                <!-- BENTO GRID (8 Proyectos) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[280px]" id="projects-grid">
+                    
+                    <!-- ===== BLOQUE SUPERIOR ===== -->
+
+                    <!-- Proyecto 1: SCADA (Grande 2x2, Izquierda) -->
+                    <div class="project-card bento-card lg:col-span-2 lg:row-span-2 md:col-span-2 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-8" data-category="scada" onclick="openProjectPage('scada')">
+                        <!-- Imagen de Fondo dinámica -->
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-scada);"></div>
+                        <!-- Overlay Oscuro -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+                        
+                        <div class="flex justify-between items-start z-10 w-full mb-auto">
+                            <span class="px-4 py-2 bg-brand-DEFAULT/90 backdrop-blur-sm text-white rounded-full text-xs font-bold uppercase border border-white/20 shadow-sm">SCADA & PLC</span>
+                            <div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-md text-white border border-white/20 group-hover:bg-brand-DEFAULT group-hover:-translate-y-1 transition-all">
+                                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="z-10 mt-8">
+                            <h3 class="font-display text-4xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-md">
+                                <span class="lang-es">Arquitectura SCADA<br>Multinivel</span>
+                                <span class="lang-en hidden">Multi-level SCADA<br>Architecture</span>
+                            </h3>
+                            <p class="text-slate-300 text-lg max-w-md mb-8 drop-shadow-sm">
+                                <span class="lang-es">Entorno de supervisión industrial con segregación de funciones y control de variables en tiempo real.</span>
+                                <span class="lang-en hidden">Industrial supervision environment with segregation of functions and real-time variable control.</span>
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold rounded-lg">FactoryTalk View</span>
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold rounded-lg">Studio 5000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proyecto 2: Edge AI (Vertical 1x2, Medio) -->
+                    <div class="project-card bento-card lg:col-span-1 lg:row-span-2 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-8" data-category="ai" onclick="openProjectPage('ai')">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-ai);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+                        
+                        <div class="z-10 mb-auto">
+                            <span class="px-3 py-1 bg-accent/90 backdrop-blur-sm text-white rounded-full text-xs font-bold uppercase border border-white/20 mb-8 inline-block shadow-sm">Edge AI</span>
+                            <h3 class="font-display text-3xl font-bold text-white mb-4 leading-tight drop-shadow-md">
+                                <span class="lang-es">Visión Artificial<br>Embebida</span>
+                                <span class="lang-en hidden">Embedded Artificial<br>Vision</span>
+                            </h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                <span class="lang-es">Clasificación en tiempo real (YOLOv5) optimizada para ejecución local fluida en recursos limitados.</span>
+                                <span class="lang-en hidden">Real-time classification (YOLOv5) optimized for smooth local execution on limited resources.</span>
+                            </p>
+                        </div>
+                        <div class="z-10 mt-8 space-y-3">
+                            <div class="flex items-center justify-between px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white">
+                                <span class="text-sm font-bold">YOLOv5 / PyTorch</span>
+                                <i data-lucide="cpu" class="w-4 h-4 text-accent-light"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proyecto 3: PID Control (Cuadrado 1x1, Arriba Derecha) -->
+                    <div class="project-card bento-card lg:col-span-1 lg:row-span-1 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-6 justify-between" data-category="control" onclick="openProjectPage('control')">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-pid);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+                        
+                        <div class="z-10 flex justify-between items-start">
+                            <div class="w-10 h-10 bg-purple-600/80 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20"><i data-lucide="git-merge" class="w-5 h-5 text-white"></i></div>
+                            <i data-lucide="arrow-right" class="w-5 h-5 text-white/50 group-hover:text-white transition-colors"></i>
+                        </div>
+                        <div class="z-10 mt-4">
+                            <h3 class="font-display text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">
+                                <span class="lang-es">Control PID<br>Motor-Generador</span>
+                                <span class="lang-en hidden">PID Control<br>Motor-Generator</span>
+                            </h3>
+                            <div class="flex gap-2 mt-3">
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">MATLAB</span>
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">ControlLogix</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proyecto 4: Robótica EMG (Cuadrado 1x1, Abajo Derecha) -->
+                    <div class="project-card bento-card lg:col-span-1 lg:row-span-1 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-6 justify-between" data-category="ai" onclick="openProjectPage('robotics-emg')">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-emg);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+                        
+                        <div class="z-10 flex justify-between items-start">
+                            <div class="w-10 h-10 bg-amber-600/80 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20"><i data-lucide="activity" class="w-5 h-5 text-white"></i></div>
+                            <i data-lucide="arrow-right" class="w-5 h-5 text-white/50 group-hover:text-white transition-colors"></i>
+                        </div>
+                        <div class="z-10 mt-4">
+                            <h3 class="font-display text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">
+                                <span class="lang-es">Interfaz HMI<br>Biométrica</span>
+                                <span class="lang-en hidden">Biometric<br>HMI Interface</span>
+                            </h3>
+                            <div class="flex gap-2 mt-3">
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">Señales EMG</span>
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">ESP32 / PCB</span>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ===== BLOQUE INFERIOR ESPEJO ===== -->
+
+                    <!-- Proyecto 5: Simulación ABB (Cuadrado 1x1, Arriba Izquierda) -->
+                    <div class="project-card bento-card lg:col-span-1 lg:row-span-1 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-6 justify-between" data-category="control" onclick="openProjectPage('robotics-abb')">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-abb);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+
+                        <div class="z-10 flex justify-between items-start">
+                            <div class="w-10 h-10 bg-red-600/80 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20"><i data-lucide="laptop" class="w-5 h-5 text-white"></i></div>
+                            <i data-lucide="arrow-right" class="w-5 h-5 text-white/50 group-hover:text-white transition-colors"></i>
+                        </div>
+                        <div class="z-10 mt-4">
+                            <h3 class="font-display text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">
+                                <span class="lang-es">Simulación de<br>Celdas ABB</span>
+                                <span class="lang-en hidden">ABB Cell<br>Simulation</span>
+                            </h3>
+                            <div class="flex gap-2 mt-3">
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">RobotStudio</span>
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">RAPID</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proyecto 7: Mineria (Vertical 1x2, Medio) -->
+                    <div class="project-card bento-card lg:col-span-1 lg:row-span-2 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-8" data-category="scada" onclick="openProjectPage('mining')">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-mining);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+
+                        <div class="z-10 mb-auto">
+                            <span class="px-3 py-1 bg-blue-600/90 backdrop-blur-sm text-white rounded-full text-xs font-bold uppercase border border-white/20 mb-8 inline-block shadow-sm">SCADA & PLC</span>
+                            <h3 class="font-display text-3xl font-bold text-white mb-4 leading-tight drop-shadow-md">
+                                <span class="lang-es">Automatización<br>de Drenaje</span>
+                                <span class="lang-en hidden">Drainage<br>Automation</span>
+                            </h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                <span class="lang-es">Algoritmos On-Off y telemetría HART para mitigación de riesgos en túneles mineros de 45°.</span>
+                                <span class="lang-en hidden">On-Off algorithms and HART telemetry for risk mitigation in 45° mining tunnels.</span>
+                            </p>
+                        </div>
+                        <div class="z-10 mt-8 space-y-3">
+                            <div class="flex items-center justify-between px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white">
+                                <span class="text-sm font-bold">S7-1200 / HART</span>
+                                <i data-lucide="droplets" class="w-4 h-4 text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proyecto 8: Python Data Scraper (Grande 2x2, Derecha) -->
+                    <div class="project-card bento-card lg:col-span-2 lg:row-span-2 md:col-span-2 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-8" data-category="software" onclick="openProjectPage('python-data')">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-python);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+
+                        <div class="flex justify-between items-start z-10 w-full mb-auto">
+                            <span class="px-4 py-2 bg-cyan-600/90 backdrop-blur-sm text-white rounded-full text-xs font-bold uppercase border border-white/20 shadow-sm">Software & Data</span>
+                            <div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-md text-white border border-white/20 group-hover:bg-cyan-500 group-hover:-translate-y-1 transition-all">
+                                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="z-10 mt-8">
+                            <h3 class="font-display text-4xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-md">
+                                <span class="lang-es">Ingeniería de Datos<br>& Web Scraping</span>
+                                <span class="lang-en hidden">Data Engineering<br>& Web Scraping</span>
+                            </h3>
+                            <p class="text-slate-300 text-lg max-w-md mb-8 drop-shadow-sm">
+                                <span class="lang-es">Herramienta automatizada en Python para la extracción y filtrado inteligente de vacantes técnicas a nivel global.</span>
+                                <span class="lang-en hidden">Automated Python tool for intelligent extraction and filtering of global technical vacancies.</span>
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold rounded-lg">Python 3</span>
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold rounded-lg">SerpApi</span>
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold rounded-lg">JSON Parsing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proyecto 6: Cobot Jaka Físico (Cuadrado 1x1, Abajo Izquierda) -->
+                    <div class="project-card bento-card lg:col-span-1 lg:row-span-1 rounded-[32px] overflow-hidden cursor-pointer shadow-lg relative group flex flex-col p-6 justify-between" data-category="control" onclick="openProjectPage('robotics-jaka')">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0" style="background-image: var(--img-jaka);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40 z-0 group-hover:opacity-90 transition-opacity"></div>
+
+                        <div class="z-10 flex justify-between items-start">
+                            <div class="w-10 h-10 bg-emerald-600/80 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20"><i data-lucide="settings" class="w-5 h-5 text-white"></i></div>
+                            <i data-lucide="arrow-right" class="w-5 h-5 text-white/50 group-hover:text-white transition-colors"></i>
+                        </div>
+                        <div class="z-10 mt-4">
+                            <h3 class="font-display text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">
+                                <span class="lang-es">Cobot<br>Jaka Z3</span>
+                                <span class="lang-en hidden">Jaka Z3<br>Cobot</span>
+                            </h3>
+                            <div class="flex gap-2 mt-3">
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">Config. TCP</span>
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded">Cinemática</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer simple -->
+        <footer class="py-8 text-center text-slate-400 text-sm border-t border-slate-200 mt-12">
+            <p>Andrés Villalba &copy; 2026. <span class="lang-es">Diseñado con excelencia.</span><span class="lang-en hidden">Designed with excellence.</span></p>
+        </footer>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- VISTA 2: PÁGINA DEL PROYECTO (SPA ROUTER)  -->
+    <!-- ========================================== -->
+    <main id="project-view" class="view-hidden min-h-screen bg-white pt-20 pb-24">
+        <div id="project-view-content" class="w-full"></div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- TEMPLATES DE PROYECTOS (DATOS OCULTOS)     -->
+    <!-- ========================================== -->
+    <div id="project-templates" class="hidden">
+        
+        <!-- DATA: SCADA -->
+        <div id="data-page-scada">
+            <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end">
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: var(--img-scada);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-brand-DEFAULT text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">HMI / SCADA</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">Arquitectura SCADA Multinivel y Control de Procesos</span><span class="lang-en hidden">Multilevel SCADA Architecture and Process Control</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <!-- Barra Horizontal de Stack -->
+                <div class="bg-brand-50 p-6 md:p-8 rounded-[32px] border border-brand-100 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-brand-dark shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-brand-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Studio 5000</span>
+                        <span class="px-3 py-1.5 bg-white border border-brand-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">FactoryTalk View SE/ME</span>
+                        <span class="px-3 py-1.5 bg-white border border-brand-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Emuladores ControlLogix</span>
+                    </div>
+                </div>
+
+                <!-- 1. Objetivo -->
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Desarrollar un entorno de supervisión industrial con segregación de funciones y control de variables críticas en tiempo real. Garantizar la operabilidad segura y la monitorización centralizada del proceso térmico e hidráulico.</span><span class="lang-en hidden">Develop an industrial supervision environment with segregation of functions and real-time control of critical variables. Ensure safe operability and centralized monitoring of the thermal and hydraulic process.</span></p>
+                    </div>
+                </section>
+
+                <!-- 2. Flujo Técnico -->
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Gestión de Activos:</span><span class="lang-en hidden">Asset Management:</span></strong> <span class="lang-es">Diseño de Faceplates dinámicos en FactoryTalk View para el monitoreo de estados (Run/Stop/Fault) de electrobombas y motores.</span><span class="lang-en hidden">Design of dynamic Faceplates in FactoryTalk View for state monitoring (Run/Stop/Fault) of electric pumps and motors.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Lazo Cerrado:</span><span class="lang-en hidden">Closed Loop:</span></strong> <span class="lang-es">Implementación de una pantalla de control PID donde se gestionó la transición Bumpless entre modos Manual y Automático, permitiendo la manipulación del Setpoint y el monitoreo del Error de estado estacionario.</span><span class="lang-en hidden">Implementation of a PID control screen managing Bumpless transitions between Manual and Automatic modes, allowing Setpoint manipulation and steady-state Error monitoring.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Lógica de Control:</span><span class="lang-en hidden">Control Logic:</span></strong> <span class="lang-es">Programación en lenguaje Ladder (Studio 5000) utilizando instrucciones de comparación y temporizadores para la secuencia de llenado/vaciado de tanques, integrando enclavamientos de seguridad por niveles críticos.</span><span class="lang-en hidden">Ladder language programming (Studio 5000) using comparison instructions and timers for the tank filling/emptying sequence, integrating safety interlocks for critical levels.</span></li>
+                    </ul>
+                </section>
+
+                <!-- 3. Configuración y Visuales -->
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Scada/ScadaDesigne.png" alt="HMI Design" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Diseño de Faceplates HMI</span><span class="lang-en hidden">HMI Faceplates Design</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Scada/LogicaLaderScada.jpg" alt="Security Config" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Lógica Ladder (Studio 5000)</span><span class="lang-en hidden">Ladder Logic (Studio 5000)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Video Demo YouTube -->
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Demostración Operativa</span><span class="lang-en hidden">Operational Demonstration</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-300 bg-slate-900">
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="./assets/videos/Scada.mov" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- DATA: EDGE AI -->
+        <div id="data-page-ai">
+            <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end">
+                <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: var(--img-ai);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-accent text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">Hardware & AI</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">Edge AI: Visión Artificial para Detección en Tiempo Real</span><span class="lang-en hidden">Edge AI: Artificial Vision for Real-Time Detection</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <div class="bg-accent/10 p-6 md:p-8 rounded-[32px] border border-accent/20 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-slate-900 shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Python</span>
+                        <span class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">YOLOv5</span>
+                        <span class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">OpenCV</span>
+                        <span class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Raspberry Pi 4</span>
+                        <span class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Roboflow</span>
+                    </div>
+                </div>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Desplegar modelos de Deep Learning en hardware embebido de bajo consumo (SBCs) para clasificación y etiquetado automático en campo, prescindiendo de aceleradores dedicados.</span><span class="lang-en hidden">Deploy Deep Learning models on low-power embedded hardware (SBCs) for automatic classification and tagging in the field, without dedicated accelerators.</span></p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Pipeline de Datos:</span><span class="lang-en hidden">Data Pipeline:</span></strong> <span class="lang-es">Curación y etiquetado de dataset especializado en Roboflow, asegurando variabilidad de iluminación y ángulo.</span><span class="lang-en hidden">Curation and labeling of a specialized dataset in Roboflow, ensuring lighting and angle variability.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Entrenamiento:</span><span class="lang-en hidden">Training:</span></strong> <span class="lang-es">Uso de Transfer Learning con YOLOv5 sobre arquitectura NVIDIA (Google Colab) para optimizar pesos del modelo.</span><span class="lang-en hidden">Use of Transfer Learning with YOLOv5 on NVIDIA architecture (Google Colab) to optimize model weights.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Despliegue (Inferencia):</span><span class="lang-en hidden">Deployment (Inference):</span></strong> <span class="lang-es">Optimización de la red para correr localmente en una Raspberry Pi 4, logrando un balance óptimo entre Frames Per Second (FPS) y Accuracy (precisión).</span><span class="lang-en hidden">Network optimization to run locally on a Raspberry Pi 4, achieving an optimal balance between Frames Per Second (FPS) and Accuracy.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Integración:</span><span class="lang-en hidden">Integration:</span></strong> <span class="lang-es">Salida de video con visualización de Bounding Boxes y etiquetas de probabilidad en tiempo real vía script de Python con OpenCV.</span><span class="lang-en hidden">Video output displaying Bounding Boxes and real-time probability tags via Python script with OpenCV.</span></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-900">
+                            <img src="./assets/images/Portafolio CV/Vision artificial/MatrizConfusion.png" alt="Python Script" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-70">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Matriz de Confusión</span><span class="lang-en hidden">Confusion Matrix</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-900">
+                            <img src="./assets/images/Portafolio CV/Vision artificial/TestDeteccionUNO.png" alt="Bounding Boxes Output" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-70">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">pruebas de Detección</span><span class="lang-en hidden">Detection Tests</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Demostración en Hardware</span><span class="lang-en hidden">Hardware Demonstration</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-300 bg-slate-900">
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="./assets/videos/UnoDETECTION.mov" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- DATA: CONTROL PID -->
+        <div id="data-page-control">
+             <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end">
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: var(--img-pid);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-purple-600 text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">Control Lazo Cerrado</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">Sistema Híbrido Motor-Generador: Modelado y PID</span><span class="lang-en hidden">Hybrid Motor-Generator System: Modeling and PID</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <div class="bg-purple-50 p-6 md:p-8 rounded-[32px] border border-purple-100 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-purple-900 shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-purple-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">MATLAB/Simulink</span>
+                        <span class="px-3 py-1.5 bg-white border border-purple-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Studio 5000</span>
+                        <span class="px-3 py-1.5 bg-white border border-purple-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">ESP32 (C++)</span>
+                        <span class="px-3 py-1.5 bg-white border border-purple-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Puente H</span>
+                    </div>
+                </div>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Estabilización de una variable eléctrica mediante un lazo de control realimentado, integrando Controladores Lógicos Programables (PLCs) con sistemas embebidos de potencia para el manejo de transitorios.</span><span class="lang-en hidden">Stabilization of an electrical variable through a feedback control loop, integrating Programmable Logic Controllers (PLCs) with embedded power systems for transient management.</span></p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Modelado Matemático:</span><span class="lang-en hidden">Mathematical Modeling:</span></strong> <span class="lang-es">Obtención de la función de transferencia del sistema mediante análisis en MATLAB, validando la estabilidad en el dominio de la frecuencia.</span><span class="lang-en hidden">Obtaining the system's transfer function through analysis in MATLAB, validating stability in the frequency domain.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Procesamiento:</span><span class="lang-en hidden">Processing:</span></strong> <span class="lang-es">Un PLC ControlLogix 5571 actúa como controlador principal, ejecutando el algoritmo PID. La señal de control (0-10V / 4-20mA) se digitaliza hacia una ESP32.</span><span class="lang-en hidden">A ControlLogix 5571 PLC acts as the main controller, executing the PID algorithm. The control signal (0-10V / 4-20mA) is digitized towards an ESP32.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Etapa de Potencia:</span><span class="lang-en hidden">Power Stage:</span></strong> <span class="lang-es">La ESP32 traduce la consigna analógica en señales PWM de alta frecuencia para conmutar un Puente H, controlando el voltaje/velocidad del motor.</span><span class="lang-en hidden">The ESP32 translates the analog setpoint into high-frequency PWM signals to switch an H-Bridge, controlling the motor's voltage/speed.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Acondicionamiento:</span><span class="lang-en hidden">Conditioning:</span></strong> <span class="lang-es">Diseño de filtros pasa-bajos activos para limpiar la señal de retroalimentación proveniente del generador antes de ingresar al PLC.</span><span class="lang-en hidden">Design of active low-pass filters to clean the feedback signal from the generator before entering the PLC.</span></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/PID/ModelamientoMatLab.png" alt="MATLAB Graph" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Modelado Dinámico MATLAB</span><span class="lang-en hidden">MATLAB Dynamic Modeling</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/PID/ControladorPIDMotGen.jpg" alt="PLC Code" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Configuración FBD/PID en PLC</span><span class="lang-en hidden">FBD/PID Configuration in PLC</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Montaje del Motor de generador</span><span class="lang-en hidden">Generator Motor Assembly</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-100">
+                        <img src="./assets/images/Portafolio CV/PID/MontajeMotGen.JPG" alt="Generator motor assembly" class="w-full h-full object-contain transition-transform duration-500 opacity-80 mix-blend-multiply">
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- DATA: ROBOTICA EMG -->
+        <div id="data-page-robotics-emg">
+            <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end">
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: var(--img-emg);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-amber-600 text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">Hardware & Robótica</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">HMI Biométrica: Procesamiento de Señales EMG</span><span class="lang-en hidden">Biometric HMI: EMG Signal Processing</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <div class="bg-amber-50 p-6 md:p-8 rounded-[32px] border border-amber-100 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-amber-900 shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-amber-200 text-amber-700 text-sm font-bold rounded-lg shadow-sm">ESP32</span>
+                        <span class="px-3 py-1.5 bg-white border border-amber-200 text-amber-700 text-sm font-bold rounded-lg shadow-sm">Sensores EMG</span>
+                        <span class="px-3 py-1.5 bg-white border border-amber-200 text-amber-700 text-sm font-bold rounded-lg shadow-sm">C++</span>
+                        <span class="px-3 py-1.5 bg-white border border-amber-200 text-amber-700 text-sm font-bold rounded-lg shadow-sm">Analog Electronics</span>
+                    </div>
+                </div>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Traducir actividad electrofisiológica humana en comandos de movimiento para cobots industriales, eliminando la dependencia de periféricos tradicionales o Teach Pendants.</span><span class="lang-en hidden">Translate human electrophysiological activity into movement commands for industrial cobots, eliminating dependence on traditional peripherals or Teach Pendants.</span></p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Adquisición Analógica:</span><span class="lang-en hidden">Analog Acquisition:</span></strong> <span class="lang-es">Diseño de una etapa de entrada con amplificadores de instrumentación de alta impedancia (fabricados en CNC) para capturar señales EMG en el rango de los µV.</span><span class="lang-en hidden">Design of an input stage with high-impedance instrumentation amplifiers (CNC manufactured) to capture EMG signals in the µV range.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Filtrado y Rectificación:</span><span class="lang-en hidden">Filtering and Rectification:</span></strong> <span class="lang-es">Implementación de filtros notch (60Hz) y filtros pasa-banda para aislar la actividad muscular del tríceps y antebrazo.</span><span class="lang-en hidden">Implementation of notch filters (60Hz) and band-pass filters to isolate muscular activity of the triceps and forearm.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Comunicación y Lógica:</span><span class="lang-en hidden">Communication and Logic:</span></strong> <span class="lang-es">Procesamiento de envolvente de señal en ESP32 y envío de tramas de datos vía Wi-Fi al controlador del robot Jaka.</span><span class="lang-en hidden">Signal envelope processing on ESP32 and data frame transmission via Wi-Fi to the Jaka robot controller.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Protocolo de Seguridad:</span><span class="lang-en hidden">Security Protocol:</span></strong> <span class="lang-es">Codificación de patrones de contracción muscular con bits de confirmación (Handshake) para evitar movimientos erráticos por ruido electromagnético.</span><span class="lang-en hidden">Coding of muscular contraction patterns with confirmation bits (Handshake) to prevent erratic movements due to electromagnetic noise.</span></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Biomedical/DesignePCBJaka.jpg" alt="KiCad PCB" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Diseño PCB / CNC</span><span class="lang-en hidden">PCB Design / CNC</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-900">
+                            <img src="./assets/images/Portafolio CV/Biomedical/ControlImpulsosJaka.png" alt="C++ Code" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-60">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Procesamiento de Señal (C++)</span><span class="lang-en hidden">Signal Processing (C++)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Teleoperación de Cobot</span><span class="lang-en hidden">Cobot Teleoperation</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-300 bg-slate-900">
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="./assets/videos/Biomedica.mov" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- DATA: ROBOTICA ABB -->
+        <div id="data-page-robotics-abb">
+            <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end">
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: var(--img-abb);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-red-600 text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">Simulación Robótica</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">Simulación de Celdas de Manufactura Flexible (ABB)</span><span class="lang-en hidden">Flexible Manufacturing Cell Simulation (ABB)</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <div class="bg-red-50 p-6 md:p-8 rounded-[32px] border border-red-100 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-red-900 shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-red-200 text-red-700 text-sm font-bold rounded-lg shadow-sm">RobotStudio</span>
+                        <span class="px-3 py-1.5 bg-white border border-red-200 text-red-700 text-sm font-bold rounded-lg shadow-sm">RAPID Language</span>
+                        <span class="px-3 py-1.5 bg-white border border-red-200 text-red-700 text-sm font-bold rounded-lg shadow-sm">FlexPendant Virtual</span>
+                    </div>
+                </div>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Diseñar, programar y validar celdas robóticas en entornos virtuales antes de la implementación física, reduciendo tiempos de puesta en marcha y asegurando cero colisiones.</span><span class="lang-en hidden">Design, program, and validate robotic cells in virtual environments before physical implementation, reducing start-up times and ensuring zero collisions.</span></p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Programación RAPID:</span><span class="lang-en hidden">RAPID Programming:</span></strong> <span class="lang-es">Creación de rutinas modulares, estructuras de datos (robtarget) y manejo de interrupciones para el control de flujo y secuencias precisas.</span><span class="lang-en hidden">Creation of modular routines, data structures (robtarget), and interrupt handling for precise flow control and sequences.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Objetos de Trabajo:</span><span class="lang-en hidden">Work Objects:</span></strong> <span class="lang-es">Configuración de marcos de referencia (Work Objects) móviles para facilitar la transferencia de piezas matemáticas entre diferentes estaciones de proceso.</span><span class="lang-en hidden">Configuration of mobile reference frames (Work Objects) to facilitate the mathematical transfer of parts between different process stations.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Simulación de E/S:</span><span class="lang-en hidden">I/O Simulation:</span></strong> <span class="lang-es">Configuración de señales digitales virtuales para la sincronización entre el brazo robótico principal y actuadores externos (cintas transportadoras, pinzas, sensores).</span><span class="lang-en hidden">Configuration of virtual digital signals for synchronization between the main robotic arm and external actuators (conveyors, grippers, sensors).</span></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Abb/RobotAbb.png" alt="RobotStudio Canvas" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Layout 3D en RobotStudio</span><span class="lang-en hidden">3D Layout in RobotStudio</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-900">
+                            <img src="./assets/images/Portafolio CV/Abb/LogicaRapidABB.png" alt="RAPID Code" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-60">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Estructura RAPID / I-O</span><span class="lang-en hidden">RAPID / I-O Structure</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Validación Virtual Pick-and-Place</span><span class="lang-en hidden">Virtual Pick-and-Place Validation</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-300 bg-slate-900">
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="./assets/videos/ABB.mov" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- DATA: ROBOTICA JAKA -->
+        <div id="data-page-robotics-jaka">
+            <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end">
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: var(--img-jaka);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">Hardware & Robótica</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">Robótica Colaborativa y Trayectorias Matemáticas</span><span class="lang-en hidden">Collaborative Robotics and Mathematical Trajectories</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <div class="bg-emerald-50 p-6 md:p-8 rounded-[32px] border border-emerald-100 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-emerald-900 shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 text-sm font-bold rounded-lg shadow-sm">Jaka Zu Series</span>
+                        <span class="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 text-sm font-bold rounded-lg shadow-sm">Software Jaka</span>
+                        <span class="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 text-sm font-bold rounded-lg shadow-sm">Cinemática Inversa</span>
+                    </div>
+                </div>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Ejecución de tareas multo-propósito con alta repetibilidad y precisión geométrica en superficies planas mediante manipuladores de robótica colaborativa (Cobots).</span><span class="lang-en hidden">Execution of multi-purpose tasks with high repeatability and geometric precision on flat surfaces using collaborative robotics manipulators (Cobots).</span></p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Configuración de Herramienta (TCP):</span><span class="lang-en hidden">Tool Configuration (TCP):</span></strong> <span class="lang-es">Calibración de parámetros de offset para pinzas y marcadores, garantizando que el punto de contacto dinámico sea exacto durante el movimiento.</span><span class="lang-en hidden">Calibration of offset parameters for grippers and markers, ensuring the dynamic contact point is exact during movement.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Generación de Trayectorias:</span><span class="lang-en hidden">Trajectory Generation:</span></strong> <span class="lang-es">Cálculo de puntos de paso mediante interpolación circular (MoveC) y lineal (MoveL) para el trazado de gráficos complejos como logotipos industriales.</span><span class="lang-en hidden">Calculation of waypoints using circular (MoveC) and linear (MoveL) interpolation for tracing complex graphics like industrial logos.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Control de Movimiento:</span><span class="lang-en hidden">Motion Control:</span></strong> <span class="lang-es">Programación de rampas de aceleración y desaceleración ajustables por el usuario para manejar diferentes inercias de carga según la pieza movida (tareas Pick-and-Place).</span><span class="lang-en hidden">Programming of user-adjustable acceleration and deceleration ramps to handle different load inertias depending on the part moved (Pick-and-Place tasks).</span></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Jaka/LogicaControlJaka.png" alt="Jaka Cobot" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Offset End-Effector (Físico)</span><span class="lang-en hidden">End-Effector Offset (Physical)</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Jaka/AppJakaConfig.png" alt="Jaka App Config" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">App Jaka: Rutinas e Interpolación</span><span class="lang-en hidden">Jaka App: Routines and Interpolation</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Desempeño Cinemático en Vivo</span><span class="lang-en hidden">Live Kinematic Performance</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-300 bg-slate-900">
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="./assets/videos/RobotJaka.mov" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- DATA: MINING -->
+        <div id="data-page-mining">
+            <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end border-b border-slate-200">
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: var(--img-mining);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">SCADA & PLC</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">Automatización de Drenaje en Minería (Proyecto de Alta Precisión)</span><span class="lang-en hidden">Mining Drainage Automation (High Precision Project)</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <div class="bg-blue-50 p-6 md:p-8 rounded-[32px] border border-blue-100 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-slate-900 shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-blue-200 text-blue-700 text-sm font-bold rounded-lg shadow-sm">Siemens TIA Portal (S7-1200)</span>
+                        <span class="px-3 py-1.5 bg-white border border-blue-200 text-blue-700 text-sm font-bold rounded-lg shadow-sm">Studio 5000</span>
+                        <span class="px-3 py-1.5 bg-white border border-blue-200 text-blue-700 text-sm font-bold rounded-lg shadow-sm">Protocolo HART</span>
+                        <span class="px-3 py-1.5 bg-blue-600 border border-blue-700 text-white text-sm font-bold rounded-lg shadow-sm">Three.js (3D Viz)</span>
+                    </div>
+                </div>
+
+                <!-- 1. MODELO 3D: EL DESAFÍO -->
+                <section class="bg-[#2b2c2e] p-6 md:p-8 rounded-[32px] border border-slate-800 shadow-xl mt-0">
+                    <h2 class="font-display text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i data-lucide="box" class="w-7 h-7 text-blue-400"></i>
+                        <span class="lang-es">Modelo 3D del Complejo Minero (El Desafío)</span><span class="lang-en hidden">Interactive Mining Complex 3D Model</span>
+                    </h2>
+                    
+                    <div id="desafio-3d-container" class="w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden bg-[#2b2c2e] relative cursor-move border border-slate-600 shadow-inner">
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="desafio-loading-indicator">
+                             <span class="text-blue-400 font-mono text-sm animate-pulse"><span class="lang-es">Iniciando Modelo 3D...</span><span class="lang-en hidden">Loading 3D Engine...</span></span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-slate-400 text-xs md:text-sm mt-4 text-center">
+                        <span class="lang-es">Arrastra para rotar la cámara • Usa la rueda del ratón para hacer zoom en los pozos y galerías</span>
+                        <span class="lang-en hidden">Drag to rotate camera • Use mouse wheel to zoom into sumps and tunnels</span>
+                    </p>
+                </section>
+
+                <!-- 2. OBJETIVO DEL PROYECTO -->
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Mitigar riesgos de inundación y optimizar el consumo energético en túneles subterráneos con inclinación de 45° y en ambientes clasificados, reemplazando el factor de riesgo humano por control algorítmico.</span><span class="lang-en hidden">Mitigate flooding risks and optimize energy consumption in underground tunnels with a 45° inclination and in classified environments, replacing human risk factors with algorithmic control.</span></p>
+                    </div>
+                </section>
+
+                <!-- 3. FLUJO TÉCNICO Y DISEÑO -->
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Instrumentación Especializada:</span><span class="lang-en hidden">Specialized Instrumentation:</span></strong> <span class="lang-es">Selección de sensores de presión hidrostática con comunicación HART para compensar la deformidad geométrica de los pozos y la presión negativa de bombeo.</span><span class="lang-en hidden">Selection of hydrostatic pressure sensors with HART communication to compensate for the geometric deformity of wells and negative pumping pressure.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Control Inteligente:</span><span class="lang-en hidden">Smart Control:</span></strong> <span class="lang-es">Algoritmo On-Off con lógica de "Duty Cycle" para protección térmica de motores de alta potencia, asegurando tiempos de enfriamiento según la curva de operación de la bomba.</span><span class="lang-en hidden">On-Off algorithm with "Duty Cycle" logic for thermal protection of high-power motors, ensuring cooling times according to the pump's operating curve.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Eficiencia Operativa:</span><span class="lang-en hidden">Operational Efficiency:</span></strong> <span class="lang-es">Diseño de dos perfiles de funcionamiento: Modo Producción (mantiene niveles mínimos para facilitar excavación) y Modo Standby (maximiza capacidad de almacenamiento para desplazar consumo eléctrico a horas valle).</span><span class="lang-en hidden">Design of two functional profiles: Production Mode (maintains minimum levels to facilitate excavation) and Standby Mode (maximizes storage capacity to shift electricity consumption to off-peak hours).</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Viabilidad:</span><span class="lang-en hidden">Viability:</span></strong> <span class="lang-es">Análisis financiero de ROI basado en la reducción contundente de paradas no programadas y la extensión de la vida útil mecánica de los actuadores.</span><span class="lang-en hidden">Financial ROI analysis based on the robust reduction of unscheduled downtime and the extension of the mechanical lifespan of actuators.</span></li>
+                    </ul>
+                </section>
+
+                <!-- 4. SIMULACIÓN DE LAZO DE CONTROL (RESULTADOS) -->
+                <section class="bg-[#111] p-6 md:p-8 rounded-[32px] border border-slate-800 shadow-xl mt-8">
+                    <h2 class="font-display text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-7 h-7 text-green-400"></i>
+                        <span class="lang-es">Simulación de Lazo de Control (Tiempo Real)</span><span class="lang-en hidden">Control Loop Simulation (Real-Time)</span>
+                    </h2>
+                    
+                    <!-- Panel de Control y Datos -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col justify-center items-center">
+                            <span class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+                                <span class="lang-es">Nivel de Agua</span><span class="lang-en hidden">Water Level</span>
+                            </span>
+                            <span id="water-level-display" class="text-2xl font-mono text-blue-400 font-bold">1.50 m</span>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col justify-center items-center">
+                            <span class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+                                <span class="lang-es">Estado de Bomba</span><span class="lang-en hidden">Pump Status</span>
+                            </span>
+                            <span id="pump-state-display" class="text-2xl font-mono text-gray-500 font-bold">APAGADA</span>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <button id="toggle-inflow" onclick="toggleInflow()" class="w-full h-full py-4 px-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors shadow-md text-sm">
+                                <span class="lang-es">Afluencia Normal</span><span class="lang-en hidden">Normal Inflow</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor 3D de Simulación -->
+                    <div id="sim-3d-container" class="w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden bg-[#111] relative cursor-move border border-slate-700 shadow-inner">
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="sim-loading-indicator">
+                             <span class="text-green-400 font-mono text-sm animate-pulse">
+                                <span class="lang-es">Iniciando Simulación de Control...</span><span class="lang-en hidden">Starting Control Simulation...</span>
+                             </span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. CONFIGURACIÓN Y VISUALES -->
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Mina/LogicaControlBombas.png" alt="Ladder Logic" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Lógica de Control (S7-1200)</span><span class="lang-en hidden">Control Logic (S7-1200)</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-100">
+                            <img src="./assets/images/Portafolio CV/Mina/TableroControlDesigne.png" alt="Control Panel" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-multiply">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Topología de Red e Instrumentación</span><span class="lang-en hidden">Network Topology & Instrumentation</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. VIDEO EXPLICATIVO -->
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Demostración Operativa</span><span class="lang-en hidden">Operational Demonstration</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-300 bg-slate-900">
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="./assets/videos/Mina-720p30.mov" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- DATA: PYTHON DATA SCRAPER -->
+        <div id="data-page-python-data">
+            <div class="w-full h-[40vh] min-h-[300px] bg-slate-900 relative flex items-end">
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: var(--img-python);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
+                    <span class="px-3 py-1 bg-cyan-600 text-white rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">Software & Data</span>
+                    <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4"><span class="lang-es">Ingeniería de Datos y Automatización de Búsqueda</span><span class="lang-en hidden">Data Engineering and Search Automation</span></h1>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                
+                <div class="bg-cyan-50 p-6 md:p-8 rounded-[32px] border border-cyan-100 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm">
+                    <h3 class="font-bold text-cyan-900 shrink-0"><span class="lang-es">Stack Tecnológico:</span><span class="lang-en hidden">Technology Stack:</span></h3>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <span class="px-3 py-1.5 bg-white border border-cyan-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Python (Requests, JSON)</span>
+                        <span class="px-3 py-1.5 bg-white border border-cyan-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">SerpApi</span>
+                        <span class="px-3 py-1.5 bg-white border border-cyan-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm">Scripting</span>
+                    </div>
+                </div>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Objetivo del Proyecto</span><span class="lang-en hidden">Project Objective</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600 text-lg leading-relaxed">
+                        <p><span class="lang-es">Optimizar procesos de captación de información técnica a nivel global mediante Web Scraping y filtrado inteligente de datos masivos.</span><span class="lang-en hidden">Optimize global technical information capture processes through Web Scraping and intelligent filtering of massive data.</span></p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                        <span class="lang-es">Flujo Técnico y Diseño</span><span class="lang-en hidden">Technical Flow and Design</span>
+                    </h2>
+                    <ul class="text-slate-600 text-lg space-y-4 list-disc list-inside">
+                        <li><strong class="text-slate-900"><span class="lang-es">Extracción de Datos:</span><span class="lang-en hidden">Data Extraction:</span></strong> <span class="lang-es">Uso de bibliotecas de Python y la API de SerpApi para realizar peticiones estructuradas a bases de datos globales de vacantes y perfiles técnicos.</span><span class="lang-en hidden">Use of Python libraries and the SerpApi API to make structured requests to global databases of technical vacancies and profiles.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Algoritmo de Filtrado:</span><span class="lang-en hidden">Filtering Algorithm:</span></strong> <span class="lang-es">Implementación de lógica condicional booleana y búsqueda iterativa por tokens clave (Firmware, RTOS, Automation, PLC) para clasificar resultados estrictamente por relevancia.</span><span class="lang-en hidden">Implementation of Boolean conditional logic and iterative search using key tokens (Firmware, RTOS, Automation, PLC) to strictly classify results by relevance.</span></li>
+                        <li><strong class="text-slate-900"><span class="lang-es">Reporting Automatizado:</span><span class="lang-en hidden">Automated Reporting:</span></strong> <span class="lang-es">Generación automática de archivos estructurados de salida (CSV/JSON) enriquecidos con metadatos de las ofertas, facilitando el análisis visual de tendencias del mercado.</span><span class="lang-en hidden">Automatic generation of structured output files (CSV/JSON) enriched with offer metadata, facilitating the visual analysis of market trends.</span></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
+                        <i data-lucide="code" class="w-6 h-6 text-brand-DEFAULT"></i>
+                        <span class="lang-es">Configuración y Visuales</span><span class="lang-en hidden">Configuration and Visuals</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-900">
+                            <img src="./assets/images/Portafolio CV/AsistenteEmpleo/LogicaBuscadoEmpleo.png" alt="Python Code" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-60">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Lógica de Scripting (Python)</span><span class="lang-en hidden">Scripting Logic (Python)</span></p>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-900">
+                            <img src="./assets/images/Portafolio CV/AsistenteEmpleo/GestionArchivosBE.jpg" alt="Data Results" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500 opacity-60">
+                            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-sm p-4 border-t border-slate-700">
+                                <p class="text-white text-sm font-bold"><span class="lang-es">Gestión de archivos de salida</span><span class="lang-en hidden">Output File Management</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-slate-50 p-6 md:p-8 rounded-[32px] border border-slate-200 shadow-inner mt-8">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="youtube" class="w-7 h-7 text-red-600"></i>
+                        <span class="lang-es">Extracción de Datos en Tiempo Real</span><span class="lang-en hidden">Real-Time Data Extraction</span>
+                    </h2>
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-300 bg-slate-900">
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Lógica JavaScript de la SPA y Componentes -->
+    <script>
+        lucide.createIcons();
+
+        const homeView = document.getElementById('home-view');
+        const projectView = document.getElementById('project-view');
+        const projectContent = document.getElementById('project-view-content');
+        const backBtnNav = document.getElementById('backButtonNav');
+        
+        // --- CONSTANTES COMPARTIDAS (MINERÍA) ---
+        const SUMP_WIDTH = 8;
+        const SUMP_DEPTH = 10;
+        const SHEAR_ANGLE_RAD = Math.PI / 4; // 45 grados
+
+        // --- VARIABLES GLOBALES PARA EL DIAGRAMA DE DESAFÍO ---
+        let desafioAnimationId = null;
+        let desafioScene, desafioCamera, desafioRenderer, desafioControls, desafioContainer, desafioMineGroup, waterMesh1, waterMesh2;
+
+        // --- VARIABLES GLOBALES PARA LA SIMULACIÓN DE RESULTADOS ---
+        let simAnimationId = null;
+        let simScene, simCamera, simRenderer, simControls, simWaterMesh, simPumpMesh, simFloorMesh;
+        let pumpStateDisplay, waterLevelDisplay, toggleInflowButton;
+        let simContainer; 
+        
+        // --- PARÁMETROS DE SIMULACIÓN Y CONTROL (RESULTADOS) ---
+        const THRESHOLD_HIGH = 4.0;     
+        const THRESHOLD_LOW = 1.0;      
+        
+        const SIM_SHEAR_ANGLE_DEG = -40;     
+        const SIM_SHEAR_ANGLE_RAD = SIM_SHEAR_ANGLE_DEG * (Math.PI / 180);
+        const SIM_SHEAR_SHIFT = SUMP_DEPTH * Math.tan(SIM_SHEAR_ANGLE_RAD); 
+
+        const PUMP_ON_DURATION_MS = 2300;  
+        const PUMP_OFF_DURATION_MS = 700; 
+        let isCyclingActive = false;       
+        let lastCycleChangeTime = Date.now(); 
+        
+        let waterLevel = 1.5;           
+        let isPumpOn = false;           
+        
+        let inflowRate = 0.0025;         
+        const pumpingRate = 0.008;      
+        const HIGH_INFLOW_RATE = 0.01; 
+
+        // FUNCIONES DE ENRUTAMIENTO (SPA)
+        function openProjectPage(projectId) {
+            const dataElement = document.getElementById('data-page-' + projectId);
+            if(dataElement) {
+                // Inyectar contenido HTML del proyecto
+                projectContent.innerHTML = dataElement.innerHTML;
+                
+                // Cambiar visibilidad de vistas
+                homeView.classList.replace('view-visible', 'view-hidden');
+                projectView.classList.replace('view-hidden', 'view-visible');
+                
+                // Mostrar botón de volver en el nav
+                backBtnNav.classList.remove('hidden');
+                backBtnNav.classList.add('inline-flex');
+
+                // Subir al tope de la página inmediatamente
+                window.scrollTo(0, 0);
+
+                // Re-procesar iconos de Lucide y el idioma actual
+                lucide.createIcons();
+                applyCurrentLanguageToProject();
+
+                // === LÓGICA ESPECIAL PARA EL MODELO 3D DE MINERÍA ===
+                if (projectId === 'mining') {
+                    // Inicializar ambas simulaciones con un pequeño retraso para asegurar que el DOM cargó
+                    setTimeout(() => {
+                        initDesafio3D();
+                        initSim3D();
+                    }, 100);
+                }
+            }
+        }
+
+        function goHome() {
+            // Detener animación 3D de Minería para ahorrar recursos si existen
+            if (desafioAnimationId) {
+                cancelAnimationFrame(desafioAnimationId);
+                desafioAnimationId = null;
+            }
+            if (simAnimationId) {
+                cancelAnimationFrame(simAnimationId);
+                simAnimationId = null;
+            }
+
+            // Regresar a la vista principal
+            projectView.classList.replace('view-visible', 'view-hidden');
+            homeView.classList.replace('view-hidden', 'view-visible');
+            
+            // Ocultar botón de volver en el nav
+            backBtnNav.classList.remove('inline-flex');
+            backBtnNav.classList.add('hidden');
+
+            // Limpiar el contenido inyectado
+            projectContent.innerHTML = '';
+            
+            // Volver a la posición de la grilla de proyectos
+            const gridEl = document.getElementById('proyectos');
+            if(gridEl) {
+                window.scrollTo({ top: gridEl.offsetTop - 80, behavior: 'smooth' });
+            }
+        }
+
+        // --- FUNCIÓN (REUTILIZABLE) PARA CREAR GEOMETRÍA SESGADA ---
+        function createShearedSump(width, height, depth, shearAngleRad) {
+            const geometry = new THREE.BufferGeometry();
+            const shearShift = height * Math.tan(shearAngleRad); 
+
+            // Vértices (Base Y=0, Top Y=H, Sheared along X)
+            const V0 = new THREE.Vector3(-width/2, 0, -depth/2);
+            const V1 = new THREE.Vector3( width/2, 0, -depth/2);
+            const V2 = new THREE.Vector3( width/2, 0,  depth/2);
+            const V3 = new THREE.Vector3(-width/2, 0,  depth/2);
+            const V4 = new THREE.Vector3(-width/2 + shearShift, height, -depth/2);
+            const V5 = new THREE.Vector3( width/2 + shearShift, height, -depth/2);
+            const V6 = new THREE.Vector3( width/2 + shearShift, height,  depth/2);
+            const V7 = new THREE.Vector3(-width/2 + shearShift, height,  depth/2);
+
+            const vertices = [ V0, V1, V2, V3, V4, V5, V6, V7 ];
+
+            const indices = [
+                0, 2, 1, 0, 3, 2, // Base
+                4, 5, 6, 4, 6, 7, // Top
+                0, 1, 5, 0, 5, 4, // Back
+                3, 7, 6, 3, 6, 2, // Front
+                0, 4, 7, 0, 7, 3, // Left
+                1, 2, 6, 1, 6, 5, // Right
+            ];
+
+            const positions = [];
+            vertices.forEach(v => positions.push(v.x, v.y, v.z));
+
+            geometry.setIndex(indices);
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.computeVertexNormals();
+            
+            const wallMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x2f2f2f, // Color de roca/concreto
+                specular: 0x000000,
+                shininess: 10,
+                transparent: true,
+                opacity: 0.85,
+                side: THREE.DoubleSide
+            });
+            
+            const sumpMesh = new THREE.Mesh(geometry, wallMaterial);
+            sumpMesh.position.x = -shearShift / 2; // Centrar el objeto
+            return sumpMesh;
+        }
+
+        // --- CÁLCULO DE DESPLAZAMIENTO PARA EL DESAFÍO ---
+        function calculateXShift(levelY) {
+            const shearAtLevel = levelY * Math.tan(SHEAR_ANGLE_RAD);
+            const shearShift = SUMP_DEPTH * Math.tan(SHEAR_ANGLE_RAD); 
+            return shearAtLevel - shearShift / 2;
+        }
+
+        // --- CÁLCULO DE DESPLAZAMIENTO PARA LA SIMULACIÓN ---
+        function calculateSimXShift(levelY) {
+            const shearAtLevel = levelY * Math.tan(SIM_SHEAR_ANGLE_RAD);
+            return shearAtLevel - SIM_SHEAR_SHIFT / 2;
+        }
+
+
+        // =========================================================================
+        // 1. INICIALIZACIÓN DEL MODELO 3D (EL DESAFÍO)
+        // =========================================================================
+        function initDesafio3D() {
+            desafioContainer = document.getElementById('desafio-3d-container');
+            const loadingIndicator = document.getElementById('desafio-loading-indicator');
+            if (!desafioContainer) return;
+            
+            if (loadingIndicator) loadingIndicator.style.display = 'flex';
+
+            desafioScene = new THREE.Scene();
+            desafioScene.background = new THREE.Color(0x2b2c2e); 
+
+            desafioCamera = new THREE.PerspectiveCamera(60, desafioContainer.clientWidth / desafioContainer.clientHeight, 0.1, 1000);
+            desafioCamera.position.set(50, 20, 50); 
+            
+            desafioRenderer = new THREE.WebGLRenderer({ antialias: true });
+            desafioRenderer.setSize(desafioContainer.clientWidth, desafioContainer.clientHeight);
+            desafioContainer.innerHTML = ''; 
+            desafioContainer.appendChild(desafioRenderer.domElement);
+
+            desafioControls = new THREE.OrbitControls(desafioCamera, desafioRenderer.domElement);
+            desafioControls.enableDamping = true;
+            desafioControls.dampingFactor = 0.05;
+            desafioControls.target.set(-10, 10, -5); 
+            desafioControls.update();
+
+            desafioScene.add(new THREE.AmbientLight(0x8C8C8C, 4));
+            const desafioLight = new THREE.DirectionalLight(0xC5C5C5, 2);
+            desafioLight.position.set(20, 30, 10);
+            desafioScene.add(desafioLight);
+
+            desafioMineGroup = new THREE.Group();
+            
+            const sumpWidth = SUMP_WIDTH; 
+            const sumpHeight = SUMP_DEPTH; 
+            const sumpDepth = SUMP_WIDTH; 
+            const tunnelHeight = 8; 
+            const tunnelWidth = sumpWidth; 
+            const separation = 20; 
+             // Pozo 1 (Izquierda)
+            const sump1 = createShearedSump(sumpWidth, sumpHeight, sumpDepth, SIM_SHEAR_ANGLE_RAD);
+            sump1.position.x = -separation;
+
+            // Pozo 2 (Derecha)
+            const sump2 = createShearedSump(sumpWidth, sumpHeight, sumpDepth, SIM_SHEAR_ANGLE_RAD);
+            sump2.position.x = separation;
+
+            // Pozo 3 (Izquierda)
+            const sump3 = createShearedSump(sumpWidth, sumpHeight, sumpDepth, SIM_SHEAR_ANGLE_RAD);
+            sump3.position.x = -separation-8.33;
+            sump3.position.y = 18;
+            
+            // agua del pozo 1
+
+            const waterGeometry1 = new THREE.PlaneGeometry(sumpWidth - 0.1, sumpDepth - 0.1);
+            const waterMaterial1 = new THREE.MeshPhongMaterial({ 
+                color: 0x00aaff, 
+                transparent: false, 
+                opacity: 0.8,
+                shininess: 80,
+                reflectivity: 0.8,
+            });
+            waterMesh1 = new THREE.Mesh(waterGeometry1, waterMaterial1);
+            waterMesh1.rotation.x = -Math.PI / 2;
+
+            waterMesh1.position.x = -separation-3.3333;
+            waterMesh1.position.y = 4;
+
+            // agua del pozo 2
+
+            const waterGeometry2 = new THREE.PlaneGeometry(sumpWidth - 0.1, sumpDepth - 0.1);
+            const waterMaterial2 = new THREE.MeshPhongMaterial({ 
+                color: 0x00aaff, 
+                transparent: false, 
+                opacity: 0.8,
+                shininess: 80,
+                reflectivity: 0.8,
+            });
+            waterMesh2 = new THREE.Mesh(waterGeometry2, waterMaterial2);
+            waterMesh2.rotation.x = -Math.PI / 2;
+
+            waterMesh2.position.x = separation-3.3333;
+            waterMesh2.position.y = 4;
+            
+            // Túnel de Conexión
+
+            // El largo del túnel es la distancia entre los centros (2*separation) menos el ancho de los pozos (sumpWidth)
+            const tunnelLength = (2 * separation)+8;
+            const tunnelGeometry = new THREE.BoxGeometry(tunnelLength, tunnelHeight, tunnelWidth);
+            const tunnelMaterial = new THREE.MeshPhongMaterial({ 
+                
+                color: 0x2f2f2f, // Color de roca/concreto
+                specular: 0x000000,
+                shininess: 20,
+                transparent: true,
+                opacity: 0.85,
+                side: THREE.DoubleSide });
+
+            const tunnel = new THREE.Mesh(tunnelGeometry, tunnelMaterial);
+            
+            // Posicionar el túnel en la base (Y=2) y centrado (X=0)
+            tunnel.position.set(-sumpWidth-0.333, tunnelHeight / 2 + 10, 0);
+
+            
+            // Túnel de Conexión superficie
+
+            // El largo del túnel es la distancia entre los centros (2*separation) menos el ancho de los pozos (sumpWidth)
+            const tunnel1Length = 12;
+            const tunnel1Geometry = new THREE.BoxGeometry(tunnel1Length, tunnelHeight, tunnelWidth);
+            const tunnel1Material = new THREE.MeshPhongMaterial({ 
+                
+                color: 0x2f2f2f, // Color de roca/concreto
+                specular: 0x000000,
+                shininess: 20,
+                transparent: true,
+                opacity: 0.85,
+                side: THREE.DoubleSide });
+
+            const tunnel1 = new THREE.Mesh(tunnel1Geometry, tunnel1Material);
+            
+            // Posicionar el túnel en la base (Y=2) y centrado (X=0)
+            tunnel1.position.set(-separation-18.6667, tunnelHeight / 2 + 28, 0);
+
+            
+            
+            desafioMineGroup.add(sump1);
+            desafioMineGroup.add(sump2);
+            desafioMineGroup.add(sump3);
+            desafioMineGroup.add(tunnel);
+            desafioMineGroup.add(tunnel1);
+            desafioMineGroup.add(waterMesh1);
+            desafioMineGroup.add(waterMesh2);
+
+            
+            
+            desafioScene.add(desafioMineGroup);
+
+            window.addEventListener('resize', onDesafioWindowResize, false);
+            onDesafioWindowResize(); 
+
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            animateDesafio3D();
+        }
+
+        function onDesafioWindowResize() {
+            if (!desafioContainer || !desafioCamera || !desafioRenderer) return; 
+            const width = desafioContainer.clientWidth;
+            const height = desafioContainer.clientHeight;
+            desafioCamera.aspect = width / height;
+            desafioCamera.updateProjectionMatrix();
+            desafioRenderer.setSize(width, height);
+        }
+
+        function animateDesafio3D() {
+            desafioAnimationId = requestAnimationFrame(animateDesafio3D);
+            if (!desafioControls || !desafioRenderer) return;
+            
+            desafioControls.update();
+            if (desafioMineGroup) desafioMineGroup.rotation.y += 0.002;
+            if (waterMesh1 && waterMesh2) {
+                waterMesh1.position.y = 4 + Math.sin(Date.now() * 0.002) * 0.2;
+                waterMesh2.position.y = 4 + Math.cos(Date.now() * 0.002) * 0.2;
+            }
+            desafioRenderer.render(desafioScene, desafioCamera);
+        }
+
+
+        // =========================================================================
+        // 2. INICIALIZACIÓN DE LA SIMULACIÓN DE RESULTADOS (LAZO DE CONTROL)
+        // =========================================================================
+        function initSim3D() {
+            simContainer = document.getElementById('sim-3d-container');
+            const loadingIndicator = document.getElementById('sim-loading-indicator');
+            
+            if (!simContainer) {
+                console.error("Contenedor 3D de simulación no encontrado.");
+                return;
+            }
+            if (loadingIndicator) loadingIndicator.style.display = 'flex';
+
+            pumpStateDisplay = document.getElementById('pump-state-display');
+            waterLevelDisplay = document.getElementById('water-level-display');
+            toggleInflowButton = document.getElementById('toggle-inflow');
+
+            // 1. Escena, Cámara y Renderer
+            simScene = new THREE.Scene();
+            simScene.background = new THREE.Color(0x111111); 
+
+            simCamera = new THREE.PerspectiveCamera(50, simContainer.clientWidth / simContainer.clientHeight, 0.1, 100);
+            simCamera.position.set(15, SUMP_DEPTH * 0.5, 20); 
+            
+            simRenderer = new THREE.WebGLRenderer({ antialias: true });
+            simRenderer.setSize(simContainer.clientWidth, simContainer.clientHeight);
+            simContainer.innerHTML = ''; // Limpiar cualquier canvas existente (SPA)
+            simContainer.appendChild(simRenderer.domElement);
+
+            // 2. Controles
+            simControls = new THREE.OrbitControls(simCamera, simRenderer.domElement);
+            simControls.enableDamping = true; 
+            simControls.dampingFactor = 0.05;
+            simControls.target.set(0, SUMP_DEPTH * 0.5, 0); 
+            simControls.update();
+
+            // 3. Luces
+            simScene.add(new THREE.AmbientLight(0x404040, 5));
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+            directionalLight.position.set(20, 30, 10);
+            simScene.add(directionalLight);
+
+            // 4. Crear Visualización
+            createAutomationVisualization();
+
+            // 5. Redimensionamiento
+            window.addEventListener('resize', onSimWindowResize, false);
+            onSimWindowResize(); 
+
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            animateSim3D();
+        }
+        
+        function createAutomationVisualization() {
+            const sumpWidth = SUMP_WIDTH; 
+            const sumpDepth = SUMP_WIDTH; 
+            const sumpHeight = SUMP_DEPTH; 
+
+            // 1. Paredes del Pozo (Sump) - Geometría Sesgada
+            const sumpMesh = createShearedSump(sumpWidth, sumpHeight, sumpDepth, SIM_SHEAR_ANGLE_RAD);
+            simScene.add(sumpMesh);
+            
+            // 2. Piso del Pozo
+            const floorGeometry = new THREE.PlaneGeometry(sumpWidth + SIM_SHEAR_SHIFT, sumpDepth); 
+            const floorMaterial = new THREE.MeshPhongMaterial({ color: 0x222222, side: THREE.DoubleSide });
+            simFloorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+            simFloorMesh.rotation.x = -Math.PI / 2;
+            simFloorMesh.position.y = 0; 
+            simFloorMesh.position.x = calculateSimXShift(0); 
+            simScene.add(simFloorMesh);
+
+            // 3. Plano de Agua
+            const waterGeometry = new THREE.PlaneGeometry(sumpWidth - 0.1, sumpDepth - 0.1);
+            const waterMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x00aaff, 
+                transparent: false, 
+                opacity: 0.8,
+                shininess: 80,
+                reflectivity: 0.5,
+            });
+            simWaterMesh = new THREE.Mesh(waterGeometry, waterMaterial);
+            simWaterMesh.rotation.x = -Math.PI / 2;
+            simScene.add(simWaterMesh);
+            
+            // 4. Bomba
+            const pumpGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.5, 32); 
+            const pumpMaterial = new THREE.MeshPhongMaterial({ color: 0x555555, shininess: 30 }); 
+            simPumpMesh = new THREE.Mesh(pumpGeometry, pumpMaterial);
+            const pumpY = SUMP_DEPTH - 0.5;
+            simPumpMesh.position.set(calculateSimXShift(pumpY), pumpY, sumpDepth/2); 
+            simScene.add(simPumpMesh);
+
+            // 5. Marcadores de Nivel (Líneas)
+            const lineMaterialLow = new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 3 }); 
+            const lineMaterialHigh = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3 }); 
+            
+            const createLevelLine = (levelY, material) => {
+                const xCenter = calculateSimXShift(levelY);
+                const points = [];
+                points.push(new THREE.Vector3(xCenter - sumpWidth/2, levelY, sumpDepth/2)); 
+                points.push(new THREE.Vector3(xCenter + sumpWidth/2, levelY, sumpDepth/2));
+                return new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), material);
+            };
+
+            simScene.add(createLevelLine(THRESHOLD_LOW, lineMaterialLow));
+            simScene.add(createLevelLine(THRESHOLD_HIGH, lineMaterialHigh));
+
+            // Etiquetas (Cilindros)
+            const labelGeometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 8);
+            const highLabel = new THREE.Mesh(labelGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+            highLabel.position.set(calculateSimXShift(THRESHOLD_HIGH) + sumpWidth/2 + 0.5, THRESHOLD_HIGH, sumpDepth/2);
+            simScene.add(highLabel);
+            const lowLabel = new THREE.Mesh(labelGeometry, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            lowLabel.position.set(calculateSimXShift(THRESHOLD_LOW) + sumpWidth/2 + 0.5, THRESHOLD_LOW, sumpDepth/2);
+            simScene.add(lowLabel);
+
+            simScene.userData.pumpMesh = simPumpMesh;
+            simScene.userData.waterMesh = simWaterMesh;
+        }
+
+        function onSimWindowResize() {
+            if (!simContainer || !simCamera || !simRenderer) return; 
+            const width = simContainer.clientWidth;
+            const height = simContainer.clientHeight;
+            simCamera.aspect = width / height;
+            simCamera.updateProjectionMatrix();
+            simRenderer.setSize(width, height);
+        }
+
+        function toggleInflow() {
+            if (inflowRate === HIGH_INFLOW_RATE) {
+                inflowRate = 0.0025; 
+                toggleInflowButton.innerHTML = currentLang === 'es' ? '<span class="lang-es">Afluencia Normal</span><span class="lang-en hidden">Normal Inflow</span>' : '<span class="lang-es hidden">Afluencia Normal</span><span class="lang-en">Normal Inflow</span>';
+                toggleInflowButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                toggleInflowButton.classList.add('bg-green-500', 'hover:bg-green-600');
+            } else {
+                inflowRate = HIGH_INFLOW_RATE;
+                toggleInflowButton.innerHTML = currentLang === 'es' ? '<span class="lang-es">Afluencia ALTA (Simular Tormenta)</span><span class="lang-en hidden">HIGH Inflow (Storm)</span>' : '<span class="lang-es hidden">Afluencia ALTA (Simular Tormenta)</span><span class="lang-en">HIGH Inflow (Storm)</span>';
+                toggleInflowButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+                toggleInflowButton.classList.add('bg-red-500', 'hover:bg-red-600');
+            }
+        }
+
+        function animateSim3D() {
+            simAnimationId = requestAnimationFrame(animateSim3D); 
+
+            if (simControls) simControls.update(); 
+            
+            // --- Lógica de la SIMULACIÓN DE RESULTADOS ---
+            if (simScene && simScene.userData.waterMesh) {
+                const currentTime = Date.now();
+                
+                // 1. Lógica de Histéresis
+                if (waterLevel >= THRESHOLD_HIGH) {
+                    if (!isCyclingActive) {
+                        isCyclingActive = true;
+                        isPumpOn = true; 
+                        lastCycleChangeTime = currentTime;
+                    }
+                } else if (waterLevel <= THRESHOLD_LOW) {
+                    isCyclingActive = false;
+                    isPumpOn = false;
+                }
+                
+                // 2. Lógica de Ciclo de Trabajo
+                if (isCyclingActive) {
+                    const elapsedTime = currentTime - lastCycleChangeTime;
+                    if (isPumpOn) {
+                        if (elapsedTime >= PUMP_ON_DURATION_MS) {
+                            isPumpOn = false; 
+                            lastCycleChangeTime = currentTime;
+                        }
+                    } else {
+                        if (elapsedTime >= PUMP_OFF_DURATION_MS) {
+                            if (waterLevel > THRESHOLD_LOW) {
+                                isPumpOn = true; 
+                                lastCycleChangeTime = currentTime;
+                            } else {
+                                isCyclingActive = false;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Actualización Nivel de Agua
+                waterLevel += inflowRate;
+                if (isPumpOn) {
+                    waterLevel -= pumpingRate;
+                }
+                waterLevel = Math.min(SUMP_DEPTH, waterLevel);
+                waterLevel = Math.max(0.1, waterLevel); 
+
+                // 4. Actualización Visual 3D
+                const currentXShift = calculateSimXShift(waterLevel);
+                simScene.userData.waterMesh.position.y = waterLevel; 
+                simScene.userData.waterMesh.position.x = currentXShift;
+                
+                if (simScene.userData.pumpMesh) {
+                    if (isPumpOn) {
+                        simScene.userData.pumpMesh.material.color.setHex(0xffcb00); 
+                        simScene.userData.pumpMesh.rotation.z += 0.2;
+                    } else {
+                        simScene.userData.pumpMesh.material.color.setHex(0x555555); 
+                        simScene.userData.pumpMesh.rotation.z = 0;
+                    }
+                }
+                
+                // 5. Actualización del DOM
+                if (pumpStateDisplay && waterLevelDisplay) {
+                    const levelPercentage = (((waterLevel / 3 ) * 100)-(100/3)).toFixed(0);
+                    waterLevelDisplay.textContent = `${waterLevel.toFixed(2)} m (${levelPercentage}%)`;
+                    
+                    if (isCyclingActive) {
+                        if (isPumpOn) {
+                            pumpStateDisplay.textContent = currentLang === 'es' ? "BOMBA ON" : "PUMP ON";
+                            pumpStateDisplay.classList.remove('text-gray-500', 'text-red-600');
+                            pumpStateDisplay.classList.add('text-[#ffcb00]'); 
+                        } else {
+                            pumpStateDisplay.textContent = currentLang === 'es' ? "APAGADA" : "OFF";
+                            pumpStateDisplay.classList.remove('text-[#ffcb00]', 'text-red-600');
+                            pumpStateDisplay.classList.add('text-gray-500'); 
+                        }
+                    } else {
+                        pumpStateDisplay.textContent = currentLang === 'es' ? "APAGADA" : "OFF";
+                        pumpStateDisplay.classList.remove('text-[#ffcb00]', 'text-red-600');
+                        pumpStateDisplay.classList.add('text-gray-500'); 
+                    }
+                    
+                    if (waterLevel > SUMP_DEPTH * 0.9) {
+                        pumpStateDisplay.textContent = currentLang === 'es' ? "CRÍTICO! BOMBA ON" : "CRITICAL! PUMP ON";
+                        pumpStateDisplay.classList.add('text-red-600');
+                    }
+                }
+
+            }
+            
+            if (simRenderer && simScene && simCamera) {
+                simRenderer.render(simScene, simCamera);
+            }
+        }
+
+
+        // =========================================================================
+        // LÓGICA BILINGÜE Y DE NAVEGACIÓN
+        // =========================================================================
+        let currentLang = 'es';
+
+        function applyCurrentLanguageToProject() {
+            const projectEsElements = projectContent.querySelectorAll('.lang-es');
+            const projectEnElements = projectContent.querySelectorAll('.lang-en');
+            
+            if (currentLang === 'es') {
+                projectEnElements.forEach(el => el.classList.add('hidden'));
+                projectEsElements.forEach(el => el.classList.remove('hidden'));
+            } else {
+                projectEsElements.forEach(el => el.classList.add('hidden'));
+                projectEnElements.forEach(el => el.classList.remove('hidden'));
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Toggle de Idioma Global
+            const langToggles = document.querySelectorAll('.langToggle');
+            const esElements = document.querySelectorAll('.lang-es');
+            const enElements = document.querySelectorAll('.lang-en');
+
+            langToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const btnsEs = document.querySelectorAll('.btn-es');
+                    const btnsEn = document.querySelectorAll('.btn-en');
+
+                    if (currentLang === 'es') {
+                        currentLang = 'en';
+                        document.documentElement.lang = 'en';
+                        document.title = "Andrés Villalba | Automation Specialist";
+                        
+                        btnsEs.forEach(btn => {
+                            btn.classList.remove('bg-brand-DEFAULT', 'shadow-sm', 'text-white', 'font-bold');
+                            btn.classList.add('text-slate-400', 'font-semibold');
+                        });
+                        btnsEn.forEach(btn => {
+                            btn.classList.add('bg-brand-DEFAULT', 'shadow-sm', 'text-white', 'font-bold');
+                            btn.classList.remove('text-slate-400', 'font-semibold');
+                        });
+                        
+                        esElements.forEach(el => el.classList.add('hidden'));
+                        enElements.forEach(el => el.classList.remove('hidden'));
+                    } else {
+                        currentLang = 'es';
+                        document.documentElement.lang = 'es';
+                        document.title = "Andrés Villalba | Especialista en Automatización";
+                        
+                        btnsEn.forEach(btn => {
+                            btn.classList.remove('bg-brand-DEFAULT', 'shadow-sm', 'text-white', 'font-bold');
+                            btn.classList.add('text-slate-400', 'font-semibold');
+                        });
+                        btnsEs.forEach(btn => {
+                            btn.classList.add('bg-brand-DEFAULT', 'shadow-sm', 'text-white', 'font-bold');
+                            btn.classList.remove('text-slate-400', 'font-semibold');
+                        });
+                        
+                        enElements.forEach(el => el.classList.add('hidden'));
+                        esElements.forEach(el => el.classList.remove('hidden'));
+                    }
+
+                    // Actualizar UI del botón de afluencia si existe
+                    if (document.getElementById('toggle-inflow')) {
+                        toggleInflowButton = document.getElementById('toggle-inflow');
+                        if (inflowRate === HIGH_INFLOW_RATE) {
+                            toggleInflowButton.innerHTML = currentLang === 'es' ? '<span class="lang-es">Afluencia ALTA (Simular Tormenta)</span><span class="lang-en hidden">HIGH Inflow (Storm)</span>' : '<span class="lang-es hidden">Afluencia ALTA (Simular Tormenta)</span><span class="lang-en">HIGH Inflow (Storm)</span>';
+                        } else {
+                            toggleInflowButton.innerHTML = currentLang === 'es' ? '<span class="lang-es">Afluencia Normal</span><span class="lang-en hidden">Normal Inflow</span>' : '<span class="lang-es hidden">Afluencia Normal</span><span class="lang-en">Normal Inflow</span>';
+                        }
+                    }
+
+                    // Si hay un proyecto abierto, actualizar idioma allí también
+                    if(projectView.classList.contains('view-visible')) {
+                        applyCurrentLanguageToProject();
+                    }
+                });
+            });
+
+            // Filtrado del Bento Grid (Mosaico)
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const projects = document.querySelectorAll('.project-card');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => {
+                        b.classList.remove('bg-slate-900', 'text-white', 'shadow-md');
+                        b.classList.add('bg-white', 'text-slate-600', 'shadow-sm');
+                    });
+                    
+                    btn.classList.remove('bg-white', 'text-slate-600', 'shadow-sm');
+                    btn.classList.add('bg-slate-900', 'text-white', 'shadow-md');
+
+                    const filterValue = btn.getAttribute('data-filter');
+
+                    projects.forEach(project => {
+                        if (filterValue === 'all' || project.getAttribute('data-category') === filterValue) {
+                            project.style.opacity = '1';
+                            project.style.transform = 'scale(1)';
+                            project.style.pointerEvents = 'auto';
+                            project.style.filter = 'grayscale(0)';
+                        } else {
+                            project.style.opacity = '0.3';
+                            project.style.transform = 'scale(0.98)';
+                            project.style.pointerEvents = 'none';
+                            project.style.filter = 'grayscale(100%)';
+                        }
+                    });
+                });
+            });
+
+            // Animaciones Scroll
+            const fadeElements = document.querySelectorAll('.fade-in-section');
+            const appearOptions = { threshold: 0.15, rootMargin: "0px 0px -50px 0px" };
+
+            const appearOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, appearOptions);
+
+            fadeElements.forEach(element => appearOnScroll.observe(element));
+
+            // Animaciones Nav al hacer scroll
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('shadow-lg', 'bg-slate-900/95');
+                    navbar.classList.remove('bg-slate-900/80');
+                } else {
+                    navbar.classList.remove('shadow-lg', 'bg-slate-900/95');
+                    navbar.classList.add('bg-slate-900/80');
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

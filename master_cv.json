@@ -1,0 +1,161 @@
+{
+  "datos_basicos": {
+    "nombre": "Andrés Mauricio Villalba Torres",
+    "titulo": "Ingeniero Electrónico | Especialista en Automatización Industrial",
+    "ubicacion": "Sogamoso, Boyacá, Colombia",
+    "contacto": {
+      "telefono": "+57 304 5305899",
+      "email": "andresmvillalba@gmail.com",
+      "linkedin": "nn",
+      "orcid": "https://orcid.org/0009-0002-7830-5747"
+    }
+  },
+  "perfil_profesional": "Ingeniero Electrónico especializado en Automatización Industrial recien egresado. Gran habilidad en modelamiento matemático de sistemas dinámicos, diseño de arquitecturas de control robustas, bio-control y sistemas HMI y SCADA. Amplios conocimientos en despliegue de Edge AI, visión artificial e Inteligencia Artificial (IA) en sistemas embebidos de alto rendimiento. Investigador activo en protocolos deterministas y soluciones de interoperabilidad para la Industria 4.0, con un historial académico de excelencia (Promedio Posgrado: 4.6/5.0) y manejo intermedio-avanzado del idioma inglés.",
+  "educacion": [
+    {
+      "titulo": "Especialista en Automatización Industrial",
+      "institucion": "Universidad Pedagógica y Tecnológica de Colombia (UPTC)",
+      "logros": "Promedio acumulado: 4.6/5.0",
+      "estado": "Completado"
+    },
+    {
+      "titulo": "Ingeniero Electrónico",
+      "institucion": "Universidad Pedagógica y Tecnológica de Colombia (UPTC)",
+      "logros": "Promedio acumulado: 4.2/5.0 - Destacado por excelencia académica.",
+      "estado": "Graduado"
+    }
+  ],
+  "competencias_tecnicas": {
+    "automatizacion_y_supervision": {
+      "plataformas": ["Rockwell Automation (ControlLogix 5571/Emulated)", "Studio 5000", "FactoryTalk View", "TIA Portal", "Jaka Z3","Allen-Bradley","Siemens/Tiaportal", "Schneider Electric", "Mitsubishi"],
+      "protocolos": ["CAN bus", "Ethernet/IP", "HART", "Modbus RTU/TCP", "Wi-Fi (UDP/TCP)","ASI-interface", "io-Link"],
+      "scada_hmi": [ "Gestión de alarmas y tendencias", "Seguridad por niveles de acceso (RBAC)"],
+      "PLC": [ "allen-bradley", "Siemens", "schneider electric", "mitsubishi"]
+
+    },
+    "sistemas_embebidos_y_ai": {
+      "hardware": ["ESP32", "Raspberry Pi 5/4 (SoC BCM2712)", "Microcontroladores ARM", "PCB Design", "arduino"],
+      "edge_ai": ["OpenCV", "TensorFlow Lite", "YOLOv5", "Visión Artificial"],
+      "especialidades": ["Acondicionamiento de señales", "Gestión térmica", "Control PWM","inteligencia artificial","redes neuronales"]
+    },
+    "desarrollo_y_control": {
+      "lenguajes": ["Python", "C/C++", "MATLAB/Simulink", "Ladder (LD)", "Function Block (FBD)", "Structured Text (ST)"],
+      "software_apoyo": ["Visual Studio Code", "Quartus", "VMware", "RobotStudio", "EpsonRC", "kicad", "Google Colab", "proteus"]
+    },
+    "idiomas": {
+      "Inglés": "B2 (Intermedio-Avanzado)",
+      "Español": "Nativo"
+    }
+  },
+  "proyectos_principales": [
+    {
+      "nombre": "Diseño de Sistema SCADA Multi-nivel ",
+      "rol": "Ingeniero de HMI/SCADA",
+      "descripcion": "Desarrollo de una interfaz de supervisión y control para procesos térmicos e hidráulicos en entornos virtuales industriales.",
+      "logros": [
+        "Diseñé el SCADA para monitoreo de temperatura y control de nivel de tanques siguiendo estándares de ergonomía ISO.",
+        "Implementé seguridad operativa mediante niveles de acceso diferenciados (Ingeniería, Operador, Administrador).",
+        "Integré la comunicación con PLCs virtuales en Studio 5000 para el control de bombas y gestión de alarmas en tiempo real."
+      ],
+      "tecnologias": ["Studio 5000", "FactoryTalk View", "ISO Standards", "ControlLogix Emulated"]
+    },
+    {
+    "nombre": "Sistema de Visión Artificial en Tiempo Real en Hardware de Bajos Recursos",
+    "rol": "Ingeniero de Visión Artificial y Sistemas Embebidos",
+    "descripcion": "Implementación de un sistema de detección de objetos en tiempo real optimizado para hardware de bajos recursos utilizando redes neuronales profundas.",
+    "logros": [
+      "Entrené y optimicé una red neuronal YOLOv5 en Google Colab, utilizando Roboflow para la gestión y pre-procesamiento de datasets.",
+      "Desplegué el modelo de manera local en una Raspberry Pi 4 mediante OpenCV, asegurando una latencia mínima en el procesamiento de video.",
+      "Validé la precisión del sistema mediante pruebas de estrés con webcam y validación cruzada con conjuntos de datos externos al entrenamiento."
+    ],
+    "tecnologias": ["Python", "OpenCV", "YOLOv5", "Raspberry Pi 4", "Google Colab", "Roboflow"]
+   },
+    {
+      "nombre": "Modelamiento y Control PID de Sistema Motor-Generador",
+      "rol": "Especialista en Control",
+      "descripcion": "Sintonía y regulación de un conjunto motor-generador mediante hardware industrial de alta gama.",
+      "logros": [
+        "Desarrollé el modelo matemático en Laplace y validé mediante identificación de sistemas con MATLAB.",
+        "Implementé el lazo cerrado en un PLC ControlLogix 5571 utilizando Diagrama de Bloques (FBD).",
+        "Diseñé las etapas de acondicionamiento de señales analógicas para garantizar la precisión del control."
+      ],
+      "tecnologias": ["ControlLogix 5571", "MATLAB", "FBD", "PID Control"]
+    },
+    {
+      "nombre": "Control Gestual de Cobot Jaka Z3 mediante Interfaz Bioeléctrica (EMG)",
+      "rol": "Diseñador de Hardware y Control",
+      "descripcion": "Sistema de bio-control para robótica industrial mediante procesamiento de señales musculares.",
+      "logros": [
+        "Construcción de etapas de amplificación y filtrado analógico para señales EMG en PCB personalizada.",
+        "Procesamiento inalámbrico en ESP32 para el control de trayectorias en los ejes X y Z del Cobot Jaka Z3."
+      ],
+      "tecnologias": ["ESP32", "Jaka Z3", "Señales EMG", "C/C++", "PCB Design","kicad"]
+    },
+    {
+      "nombre": "Diseño para la automatización de Bombeo de Desagüe (Minería de Carbón)",
+      "rol": "Ingeniero de Automatización",
+      "descripcion": "Sistema de control automático para pozos mineros subterráneos.",
+      "logros": [
+        "Programación en Ladder para ControlLogix con integración de protocolo HART.",
+        "Desarrollo de algoritmos de alternancia de bombas para optimización de recursos y seguridad."
+      ],
+      "tecnologias": ["Studio 5000", "HART", "ControlLogix", "Lógica Ladder","FactoryTalk View"]
+    }
+  ],
+  "investigacion_desarrollo": {
+    "titulo": "Viabilidad de Aceleradores de Hardware en Entornos Industriales",
+    "descripcion": "Estudio técnico sobre la integración de SBCs (Raspberry Pi) en redes industriales deterministas (CAN/Ethernet/IP)."
+  },
+   "valor_agregado": {
+
+      "mentalidad": "Excelencia operativa y no conformismo.",
+      "liderazgo": "Capacidad de transferencia de conocimiento y gestión de equipos técnicos.",
+      "formato": "Entrega de soluciones mediante herramientas digitales dinámicas (HTML/Dashboards)."
+
+  },
+  "biblioteca_habilidades": {
+    "ejecucion_y_eficiencia": [
+      {
+        "id": "plazos_entrega",
+        "texto": "Compromiso absoluto con el cumplimiento riguroso de plazos (deadlines) y la entrega puntual de hitos críticos.",
+        "clave": "eficiencia, puntualidad, resultados"
+      },
+      {
+        "id": "organizacion_workflow",
+        "texto": "Capacidad para estructurar flujos de trabajo (workflows) optimizados que garantizan la trazabilidad y el orden en proyectos complejos.",
+        "clave": "metodología, procesos, orden"
+      }
+    ],
+    "colaboracion_y_liderazgo": [
+      {
+        "id": "trabajo_equipo",
+        "texto": "Sólida habilidad para integrarse en equipos multidisciplinarios, fomentando la sinergia grupal y el apoyo mutuo para alcanzar metas comunes.",
+        "clave": "equipo, colaboración, comunicación"
+      },
+      {
+        "id": "mentoria_liderazgo",
+        "texto": "Liderazgo basado en la transferencia de conocimiento técnico y la capacidad de guiar equipos hacia la resolución de problemas.",
+        "clave": "mentoría, liderazgo, formación"
+      }
+    ],
+    "mentalidad_profesional": [
+      {
+        "id": "excelencia_operativa",
+        "texto": "Mentalidad orientada a la excelencia operativa, el rigor analítico y el no conformismo técnico.",
+        "clave": "calidad, análisis, mejora continua"
+      },
+      {
+        "id": "aprendizaje_proactivo",
+        "texto": "Enfoque proactivo hacia el autoaprendizaje y la rápida adaptación a nuevas tecnologías y entornos industriales.",
+        "clave": "adaptación, curiosidad, proactividad"
+      }
+    ],
+    "valor_digital": [
+      {
+        "id": "entregables_dinamicos",
+        "texto": "Diferencial en la entrega de soluciones mediante herramientas digitales interactivas (Dashboards/HTML) para una mejor toma de decisiones.",
+        "clave": "digitalización, dashboards, visibilidad"
+      }
+    ]
+  }
+}

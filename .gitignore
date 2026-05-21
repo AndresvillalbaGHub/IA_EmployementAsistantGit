@@ -1,0 +1,33 @@
+# --- CARPETAS DE PRUEBAS ---
+PruebasAsistenteIA/
+
+# --- ENTORNOS VIRTUALES ---
+env/
+# --- CONFIGURACIONES Y LLAVES (CRÍTICO) ---
+.env
+# --- ARCHIVOS DE PYTHON Y CACHE ---
+__pycache__/
+*.py[cod]
+
+# --- DATOS TEMPORALES Y LOGS DE LA APP ---
+historial_vacantes.log
+LOG_APLICACIONES.csv
+*.log
+*.csv
+
+# --- ARCHIVOS MULTIMEDIA PESADOS ---
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.mp3
+
+# --- CARPETAS DE RESULTADOS Y BASURA LOCAL ---
+resultados/
+vacantes/
+por_postular/
+enviadas/
+
+# --- SISTEMA ---
+.DS_Store
+Thumbs.db
