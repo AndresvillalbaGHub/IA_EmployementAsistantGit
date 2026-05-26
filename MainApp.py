@@ -17,7 +17,6 @@ from playwright.sync_api import sync_playwright
 import json
 import edge_tts
 import asyncio
-import base64
 
 # --- CONFIGURACIÓN DE RUTAS ---
 CARPETA_RESULTADOS = "resultados"
@@ -73,8 +72,6 @@ if 'ultimo_audio_id' not in st.session_state: st.session_state.ultimo_audio_id =
 
 # --- FUNCIONES DE SOPORTE TÉCNICO ---
 
-# motor de voz neuronal usando edge-tts 
-
 def ejecutar_briefing_neuronal(texto):
     """Motor de voz neuronal compatible con Safari/iPadOS"""
     async def generar():
@@ -94,7 +91,7 @@ def ejecutar_briefing_neuronal(texto):
         components.html(audio_html, height=0)
     except Exception as e:
         st.error(f"Falla en bus de audio: {e}")
-# Transcreación técnica con limpieza de bloques Markdown para los CVs en español a ingles
+
 def adaptar_cv_ingles(html_original):
     """Transcreación técnica con limpieza de bloques Markdown"""
     prompt = f"""
@@ -118,17 +115,14 @@ def adaptar_cv_ingles(html_original):
     except Exception as e:
         return f"Error en transcreación: {e}"
 
-# --- FUNCIÓN DE PROCESAMIENTO VISUAL DIRECTO ---
 def procesar_vacante_con_vision(img_file):
     """Envía la imagen directamente al modelo multimodal para análisis semántico"""
     try:
-        # 1. Convertimos la imagen cargada a Base64
         buffered = BytesIO()
         img = Image.open(img_file)
         img.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-        # 2. Preparamos el prompt técnico
         prompt_vision = """
         [ROL: INGENIERO DE SISTEMAS DE VISIÓN]
         Analiza esta imagen de una vacante de empleo de forma exhaustiva.
@@ -141,13 +135,12 @@ def procesar_vacante_con_vision(img_file):
         DESCRIPCION: [Resumen de funciones]
         """
 
-        # 3. Llamada al modelo (Asegúrese de que el tag soporte visión)
         res = ollama.chat(
             model=MODELO_IA,
             messages=[{
                 'role': 'user',
                 'content': prompt_vision,
-                'images': [img_str]  # <--- SEÑAL VISUAL DIRECTA
+                'images': [img_str]
             }],
             options={
                     'num_predict': 1000,
@@ -202,7 +195,10 @@ def cargar_datos_hmi(carpeta_objetivo):
         if os.path.isdir(r_sub):
             archivos = os.listdir(r_sub)
             f_an = next((f for f in archivos if f.lower().startswith("analisis_")), None)
-            f_va = next((f for f in archivos if (f.upper().startswith("GJ") or f.upper().startswith("SPE") or f.upper().startswith("SEP")) and f.endswith(".txt") and "CV" not in f.upper()), None)
+            
+            # --- CORRECCIÓN DE FILTRO: Añadimos soporte para el prefijo RES_ ---
+            f_va = next((f for f in archivos if (f.upper().startswith(("GJ", "SPE", "SEP", "RES_"))) and f.endswith(".txt") and "CV" not in f.upper()), None)
+            
             if f_va:
                 try:
                     score = 0
@@ -214,7 +210,13 @@ def cargar_datos_hmi(carpeta_objetivo):
                         score = int(score_m.group(1)) if score_m else 0
                     with open(os.path.join(r_sub, f_va), "r", encoding="utf-8", errors="replace") as fv:
                         cont_va = fv.read()
-                    origen = "🌍 SEP/GJ" if ("GJ" in f_va.upper() or "SEP" in f_va.upper()) else "🇨🇴 SPE"
+                    
+                    # Identificación visual en el dataframe del HMI
+                    if "RES_" in f_va.upper():
+                        origen = "💎 RESCATE"
+                    else:
+                        origen = "🌍 SEP/GJ" if ("GJ" in f_va.upper() or "SEP" in f_va.upper()) else "🇨🇴 SPE"
+                        
                     datos.append({"Empresa": sub[:25], "Score": score, "Origen": origen, "Carpeta": r_sub, "Contenido": cont_an, "Link": filtrar_link_real(cont_va)})
                 except: continue 
     return pd.DataFrame(datos)
@@ -224,17 +226,14 @@ with st.sidebar:
     st.title("🤖 Estación Central")
     seccion = st.radio("Módulo:", ["🔍 Explorador", "🎯 Postulación"])
     st.divider()
-# --- MÓDULO DE INYECCIÓN MANUAL: SINTONIZADOR DE PRECISIÓN ---
+
 # --- MÓDULO DE INGESTA MULTIMODAL MEJORADO (HMI 6.1) ---
 with st.sidebar:
     st.divider()
     st.subheader("📸 Ingesta de Alta Fidelidad")
     
     with st.container(border=True):
-        # 1. Entrada de Señal Visual
         img_captura = st.file_uploader("Subir pantallazo (PNG/JPG):", type=["png", "jpg", "jpeg"])
-        
-        # 2. Entrada de Metadatos (Link opcional)
         url_manual_v = st.text_input("🔗 Link de la vacante (Opcional):", placeholder="https://...")
         
         if img_captura:
@@ -243,13 +242,8 @@ with st.sidebar:
             if st.button("🚀 INYECTAR PROYECTO", type="primary"):
                 with st.spinner("Analizando imagen y consolidando datos..."):
                     try:
-                        # Procesamiento con el modelo de visión
                         resultado_ia = procesar_vacante_con_vision(img_captura)
-                        
-                        # Gestión del Link (Validación de estado)
                         link_final = url_manual_v if url_manual_v.strip() != "" else "No proporcionado por el usuario"
-                        
-                        # Generación de ID y Persistencia
                         id_v = hashlib.md5(img_captura.getvalue()).hexdigest()[:8]
                         nombre_f = f"{CARPETA_VACANTES}/GJ_MANUAL_VIS_{id_v}.txt"
                         
@@ -264,7 +258,6 @@ with st.sidebar:
                         if url_manual_v.strip() == "":
                             st.info("ℹ️ Procesado sin link de referencia.")
                         st.balloons()
-                        
                     except Exception as e:
                         st.error(f"Falla en el bus de inyección: {e}")
 
@@ -278,18 +271,11 @@ if seccion == "🔍 Explorador":
             
             if not st.session_state.get('p_activo', False):
                 if st.button("🔥 INICIAR BÚSQUEDA", type="primary", use_container_width=True):
-                    # --- REPARACIÓN DEL BUS DE DATOS (LOGS) ---
                     ruta_log = "ejecucion_asistente.log"
-                    
-                    # 1. Abrimos el archivo (Modo 'a' lo crea si no existe)
-                    # Usamos un file handle persistente para el subproceso
                     log_f = open(ruta_log, "a", encoding="utf-8")
-                    
-                    # 2. Escribimos una marca de tiempo inicial
                     log_f.write(f"\n{'='*20}\n[SISTEMA] INICIO: {time.strftime('%Y-%m-%d %H:%M:%S')}\n{'='*20}\n")
-                    log_f.flush() # Forzamos que se escriba al disco de la Pi 5 inmediatamente
+                    log_f.flush()
 
-                    # 3. Lanzamos el proceso con redirección total y sin buffer (-u)
                     subprocess.Popen(
                         [sys.executable, "-u", "EjecutadorAsistente.py"],
                         stdout=log_f,
@@ -303,23 +289,18 @@ if seccion == "🔍 Explorador":
                 st.warning("⚙️ Rastreando señales internacionales y nacionales...")
                 if st.button("✅ Detener Rastreo", use_container_width=True):
                     st.session_state.p_activo = False
-                    # Nota: Aquí el proceso sigue en background, pero el HMI deja de monitorearlo
                     st.rerun()
 
-            # --- CONSOLA DE MONITOREO TIPO TAIL ---
             st.divider()
             with st.expander("📟 Terminal de Proceso (ejecucion_asistente.log)", expanded=st.session_state.get('p_activo', False)):
-                # La función ahora sí encontrará datos porque Popen está escribiendo activamente
                 log_data = monitor_log_envivo()
                 st.code(log_data, language="log")
-                
                 if st.button("🛰️ SINCRONIZAR LOGS", use_container_width=True):
                     st.rerun()
 
         fuente = st.radio("Cámara de Origen:", ["Aceptados", "Rechazados"], horizontal=True)
         df = cargar_datos_hmi("aceptado" if fuente == "Aceptados" else "rechazados")
         
-        # --- CONTROL DE BARRIDO INTELIGENTE ---
         if not st.session_state.modo_barrido:
             if st.button(f"🚀 INICIAR BARRIDO DE {fuente.upper()}", type="primary", use_container_width=True):
                 if not df.empty:
@@ -341,7 +322,6 @@ if seccion == "🔍 Explorador":
                 selection_mode="single-row",
                 column_config={"Carpeta": None, "Contenido": None, "Link": None}
             )
-            # Lógica de selección de puntero
             if st.session_state.modo_barrido:
                 if st.session_state.indice_barrido >= len(df):
                     st.session_state.modo_barrido = False
@@ -356,14 +336,13 @@ if seccion == "🔍 Explorador":
 
     with col_der:
         if v_sel is not None:
-            # 1. SINCRONIZACIÓN DE AUDITORÍA
             if st.session_state.last_folder != v_sel['Carpeta']:
                 with st.spinner("Sintonizando Auditoría..."):
                     reporte_ia = revisor.analizar_vacante_seleccionada(v_sel['Carpeta'])
                     st.session_state.chat_history = [{"role": "assistant", "content": f"### 📊 Auditoría Técnica: {v_sel['Empresa']}\n\n{reporte_ia}"}]
                     st.session_state.last_folder = v_sel['Carpeta']
             
-            # --- 🚀 PANEL DE CONTROL SUPERIOR (ERGONOMÍA IPAD) ---
+            # --- PANEL DE CONTROL SUPERIOR (ERGONOMÍA IPAD) ---
             st.subheader(f"🔍 {v_sel['Empresa']}")
 
             # FILA 1: Controles de Voz
@@ -395,10 +374,46 @@ if seccion == "🔍 Explorador":
 
             c1, c2, c3 = st.columns(3)
             with c1:
-                label_p = "✅ POSTULAR" if fuente == "Aceptados" else "💎 RESCATAR"
-                if st.button(label_p, type="primary", use_container_width=True):
-                    revisor.ejecutar_movimiento(v_sel['Carpeta'], "APROBAR" if fuente == "Aceptados" else "RESCATAR")
-                    avanzar(saltar=False)
+                if fuente == "Aceptados":
+                    if st.button("✅ POSTULAR", type="primary", use_container_width=True):
+                        revisor.ejecutar_movimiento(v_sel['Carpeta'], "APROBAR")
+                        avanzar(saltar=False)
+                else:
+                    # --- LAZO DE RESCATE POR PREFIJO DE CONTROL (DIRECCIONAMIENTO SUB-CARPETAS) ---
+                    if st.button("💎 RESCATAR", type="primary", use_container_width=True):
+                        with st.spinner("Cambiando prefijo y reinyectando señal..."):
+                            ruta_carpeta_rechazado = v_sel['Carpeta'] # Ejemplo: resultados/rechazados/NombreVacante_XYZ
+                            
+                            # CORRECTO: Escaneamos el INTERIOR de la subcarpeta de la vacante seleccionada
+                            f_va = next((f for f in os.listdir(ruta_carpeta_rechazado) if f.lower().endswith(".txt") and "cv" not in f.lower() and "analisis" not in f.lower()), None)
+                            
+                            if f_va:
+                                # La ruta de origen real incluye la subcarpeta del proyecto
+                                ruta_origen_txt = os.path.join(ruta_carpeta_rechazado, f_va)
+                                
+                                # Definimos el nuevo Tag de control de rescate
+                                nuevo_nombre_txt = f"RES_{f_va}"
+                                ruta_destino_txt = os.path.join(CARPETA_VACANTES, nuevo_nombre_txt) # Destino: vacantes/RES_...
+                                
+                                # Copiamos la señal original a la entrada del radar
+                                shutil.copy(ruta_origen_txt, ruta_destino_txt)
+                                
+                                # Destruimos la subcarpeta completa de rechazados con todo lo que tiene dentro (Txt y Análisis viejo)
+                                try:
+                                    shutil.rmtree(ruta_carpeta_rechazado)
+                                except Exception as e:
+                                    st.sidebar.error(f"Aviso de limpieza en disco: {e}")
+                                
+                                # Ejecutamos el constructor lineal en background
+                                subprocess.Popen(
+                                    [sys.executable, "-u", "ConstructorCVs.py"],
+                                    start_new_session=True
+                                )
+                                
+                                st.success(f"✅ Señal reconfigurada como {nuevo_nombre_txt} e inyectada con éxito.")
+                                avanzar(saltar=False)
+                            else:
+                                st.error("❌ Error de bus: No se encontró el archivo .txt de la vacante dentro de su subcarpeta.")
             with c2:
                 if st.button("🗑️ DESCARTAR", use_container_width=True):
                     revisor.ejecutar_movimiento(v_sel['Carpeta'], "DESCARTAR")
@@ -434,7 +449,7 @@ if seccion == "🔍 Explorador":
             st.divider()
 
             # --- ZONA DE CONSULTA Y DETALLE (TABS) ---
-            t_ia, t_raw, t_cht= st.tabs(["🧠 Consultoría IA", "📝 Texto Original", "💬 Chat"])
+            t_ia, t_raw, t_cht = st.tabs(["🧠 Consultoría IA", "📝 Texto Original", "💬 Chat"])
             
             with t_ia:
                 st.write("### 🧠 Consultoría de Perfil")
@@ -456,7 +471,7 @@ if seccion == "🔍 Explorador":
                         with st.spinner("Procesando señal..."):
                             contexto_ia = st.session_state.chat_history.copy()
                             if st.session_state.get('manos_libres', False):
-                                contexto_ia[-1]['content'] += " (REGLA: Responde de forma técnica, directa y muy breve. Máximo 2 párrafos. Sin saludos ni preámbulos)."
+                                contexto_ia[-1]['content'] += " (REGLA: Responde de forma técnica, directa y muy breve. Máximo 2 párrafos. Sin saludos ni preámbulos. Ve al grano)."
                             
                             resp = revisor.conversar(contexto_ia)
                             st.write(resp)
@@ -466,6 +481,7 @@ if seccion == "🔍 Explorador":
                                 ejecutar_briefing_neuronal(resp)
         else:
             st.info("Seleccione una señal en el radar para iniciar la auditoría.")
+
 # --- SECCIÓN 2: POSTULACIÓN (Sincronización ES/EN) ---
 elif seccion == "🎯 Postulación":
     st.title("🎯 Centro de Despacho Estratégico")
@@ -477,7 +493,6 @@ elif seccion == "🎯 Postulación":
         v_activa = st.selectbox("Proyecto Activo:", carpetas_v, index=0)
         ruta_full = os.path.join(CARPETA_POSTULAR, v_activa)
         
-        # 1. Detección dinámica de idiomas
         f_es = next((f for f in os.listdir(ruta_full) if f.endswith(".html") and "_EN" not in f), None)
         f_en = next((f for f in os.listdir(ruta_full) if f.endswith("_EN.html")), None)
 
@@ -491,7 +506,6 @@ elif seccion == "🎯 Postulación":
         ruta_h_target = os.path.join(ruta_full, target_html)
         ruta_p_target = ruta_h_target.replace(".html", ".pdf")
 
-        # 2. Datos y Pitch (Sincronizados)
         col_v, col_p = st.columns(2)
         with col_v:
             st.subheader("📝 Vacante")
@@ -512,8 +526,6 @@ elif seccion == "🎯 Postulación":
             st.text_area("Copia Segura:", st.session_state.pitch_text, height=200, disabled=True)
 
         st.divider()
-
-        # 3. Gestión de Documentación
         st.subheader(f"📄 Gestión CV: Versión {label_id}")
         if st.button(f"🛡️ RENDERIZAR PDF MAESTRO ({label_id})", type="primary"):
             with st.spinner("Chromium en proceso..."):
@@ -531,7 +543,6 @@ elif seccion == "🎯 Postulación":
         with c_x:
             if st.button("🗑️ ELIMINAR"): shutil.rmtree(ruta_full); st.rerun()
 
-        # 4. Globalización
         if not f_en:
             st.divider()
             if st.button("🇺🇸 TRANSCREAR A INGLÉS (NATIVE PRO)"):

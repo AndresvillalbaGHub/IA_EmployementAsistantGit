@@ -62,13 +62,29 @@ class CVMatcher:
     def analizar(self, vacante_raw, nombre_archivo):
         """
         Analiza la vacante ajustando el criterio según el prefijo del archivo.
-        SEP: Modo Internacional / Elite (Alta tecnología)
-        Otros (GJ, CO, SPE): Modo Industrial Nacional
+        RES_: Modo Rescate (Aprobación forzada y bypass de auditoría)
+        SEP / GJ: Modo Internacional / Elite (Alta tecnología)
+        Otros (CO, SPE): Modo Industrial Nacional
         """
-        es_internacional = nombre_archivo.startswith("GJ")
+        # 1. Detección de estados y prefijos de control
+        es_rescate = nombre_archivo.upper().startswith("RES_")
+        es_internacional = nombre_archivo.startswith("GJ") or nombre_archivo.upper().startswith("RES_GJ")
+        
         vacante_final = self._limpiar_para_ia(vacante_raw)[:950]
 
-        if es_internacional:
+        # --- FLUJO DE CONTROL: CONFIGURACIÓN DE CONTEXTO ---
+        if es_rescate:
+            contexto = f"""
+            - MODO: REVISIÓN DE RESCATE (Bypass de Auditoría).
+            - ### INSTRUCCIONES CRÍTICAS ###
+            1. NO uses encabezados con '#' o '##'.
+            2. Usa exclusivamente el formato de abajo de forma obligatoria.
+            3. REGLA DE ORO DE SCORE: Asigna obligatoriamente un puntaje de 65 (sesenta y cinco). Escríbelo exactamente como: 'SCORE FINAL: 65'.
+            - NO penalices por falta de experiencia en años a menos que se solicite mas de 3 años.
+            - Se flexible con tecnologías específicas siempre que el candidato muestre habilidades transferibles y un perfil de alto potencial.
+            - Valora especialmente la mención de proyectos relevantes.
+            """
+        elif es_internacional:
             contexto = """
             - MODO: INTERNATIONAL & HIGH-TECH (SerpApi).
              - ### INSTRUCCIONES CRÍTICAS ###
