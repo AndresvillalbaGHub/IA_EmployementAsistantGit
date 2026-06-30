@@ -104,7 +104,8 @@ class CVAdapter:
         Estructura: Comienza con mi título y especialidad. Integra las 3 palabras clave más importantes de la vacante.
         Logros: Incluye una mención a la optimización de procesos, proyectos o diseño de sistemas complejos, usando verbos de acción (Diseñé, Programé, Automaticé).
         Tono: Profesional, técnico, directo y orientado a la resolución de problemas.
-        Restricción: No uses clichés como "pasión por aprender", "proactivo" o "trabajo bajo presión". Enfócate en competencias duras y valor añadido.
+        Restricción: No uses clichés como "pasión por aprender", "proactivo" o "trabajo bajo presión". Enfócate en competencias duras y valor añadido. ademas, no uses palabras como "experto", "profesional", "senior", mejor usa palabras como "habilidoso", "capaz", "eficiente", "con conocimiento" o "destacado" para describirme.
+      
         
     )",
     
